@@ -4,12 +4,12 @@ import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { ChoirContext } from "../ChoirContext";
 import AddSongModal from "./AddSongModal";
 import Link from "next/link";
-import Skeleton from 'react-loading-skeleton';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react'
 import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid'
 import { Fragment } from 'react'
-
+import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }

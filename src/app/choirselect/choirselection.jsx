@@ -1,10 +1,15 @@
 'use client'
-import { Fragment, useState } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems, Transition, Radio, RadioGroup } from '@headlessui/react';
 import { Bars3Icon, BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-
+import Skeleton from 'react-loading-skeleton';
+import 'react-loading-skeleton/dist/skeleton.css';
+import Image from 'next/image'
+import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
+import NewChoirModal from './newchoirmodal';
+import DeleteChoirModal from './deletechoirmodal';
 
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
@@ -20,15 +25,46 @@ export default function ChoirSelection({ user }) {
   const [selected, setSelected] = useState(null);
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [newChoirName, setNewChoirName] = useState('');
+  const [choirList, setChoirList] = useState([]);
+  const [choirsLoading, setChoirsLoading] = useState(true);
+  const [choirDeleteId, setChoirDeleteId] = useState('');
+  const [choirDeleteName, setChoirDeleteName] = useState('');
+  const [renameDelete, setRenameDelete] = useState(false);
+
+
+  useEffect(() => {
+    if (user && user.id) {
+      const fetchChoirDetails = async () => {
+        const response = await fetch('/api/fetchchoirs', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId: user.id })
+        });
+        
+        const result = await response.json();
+
+        console.log(result)
+        
+        if (result.status === 200) {
+          setChoirList(result.choirDetails);
+        } else {
+          console.error(result.message);
+        }
+      };
+      fetchChoirDetails();
+    }
+
+    setChoirsLoading(false);
+  }, [user]);
 
   async function updateChoir(choirid) {
     const response = await fetch('/api/prefchoir', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ choirId: choirid, userId: user.id })
+      body: JSON.stringify({ choirId: choirid, userId: user.id, lastOpened: new Date().toLocaleString() })
     });
-    router.push('/music');
   }
 
   async function createNewChoir() {
@@ -42,10 +78,10 @@ export default function ChoirSelection({ user }) {
     router.refresh();
   }
 
-  const choirList = user && user.choirs ? Object.keys(user.choirs).map(key => ({
-    name: key,
-    id: user.choirs[key],
-  })) : [];
+  // const choirList = user && user.choirs ? Object.keys(user.choirs).map(key => ({
+  //   name: key,
+  //   id: user.choirs[key],
+  // })) : [];
 
   const handleModalClose = () => setIsModalOpen(false);
   const handleChoirNameChange = (event) => setNewChoirName(event.target.value);
@@ -55,31 +91,31 @@ export default function ChoirSelection({ user }) {
     }
   }
 
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return 'N/A';
+    const date = new Date(timestamp.seconds * 1000);
+    const options = { month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: true };
+    return date.toLocaleString('en-US', options);
+  };
+
   return (
     <>
-      {isModalOpen && (
-        <>
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-20" onClick={handleModalClose} />
-          <div className="bg-white shadow sm:rounded-lg fixed top-1/3 z-30">
-            <button type="button" className="absolute top-0 left-0 inline-flex items-center justify-center rounded-md p-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-500" onClick={handleModalClose}>
-              X
-            </button>
-            <div className="px-4 py-5 sm:p-6">
-              <h3 className="text-lg font-semibold leading-6 text-gray-900">Add a New Choir</h3>
-              <form className="mt-5 sm:flex sm:items-center">
-                <div className="w-full">
-                  <input type="text" name="choirName" placeholder="Choir Name" onChange={handleChoirNameChange} value={newChoirName} className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" />
-                </div>
-                <div className="mt-5 sm:mt-0 sm:ml-3">
-                  <button type="button" className="inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:w-auto" onClick={handleSaveChoir}>
-                    Save
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </>
-      )}
+
+      <NewChoirModal 
+        open={isModalOpen}
+        setOpen={setIsModalOpen}
+        submit={handleSaveChoir}
+        user={user}
+      />
+
+      <DeleteChoirModal
+        open={isDeleteModalOpen}
+        setOpen={setIsDeleteModalOpen}
+        user={user}
+        choirid={choirDeleteId}
+        choirname={choirDeleteName}
+      />
+
 
       <div className='w-full h-full'>
         <div className="min-h-full bg-white">
@@ -176,38 +212,122 @@ export default function ChoirSelection({ user }) {
           <div className="py-10">
             <header>
               <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                <h1 className="text-3xl font-bold leading-tight tracking-tight text-gray-900">Select a choir</h1>
+                <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 mb-6">Select a choir</h1>
               </div>
             </header>
             <main>
               <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <button className="py-2 px-4 bg-green-500 text-white rounded" onClick={() => setIsModalOpen(true)}>Add New Choir</button>
+                <button 
+                  className="py-2 px-4 bg-white text-black border border-dashed border-indigo-300 rounded-md shadow-sm hover:bg-gray-50 hover:border-gray-400 transition duration-150 ease-in-out" 
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  Add New Choir
+                </button>
+
+
+                {choirsLoading && 
+                  <div className='mt-4'>
+                    <Skeleton width={1200} height={65} className="mb-2" />
+                    <Skeleton width={1200} height={65} className="mb-2" />
+                  </div>
+                }
 
                 <RadioGroup value={selected} onChange={setSelected} className="flex flex-col gap-2 mt-4">
-                {choirList.map((choir) => (
-                    <Link key={choir.name} href={`/${choir.name}/music`} passHref>
-                    <Radio value={choir} className={({ focus }) => classNames(focus ? 'border-indigo-600 ring-2 ring-indigo-600' : '', !focus ? 'border-gray-300 border ' : '', 'relative block cursor-pointer rounded-lg border bg-white px-6 py-4 shadow-sm focus:outline-none sm:flex sm:justify-between')}>
-                        {({ checked, focus }) => (
-                        <>
-                            <span className="flex items-center">
-                            <span className="flex flex-col text-sm">
-                                <span className="font-medium text-gray-900">{choir.id}</span>
-                                <span className="text-gray-500">Total Members: 30</span>
-                            </span>
-                            </span>
-                            <span className="mt-2 flex text-sm sm:ml-4 sm:mt-0 sm:flex-col sm:text-right">
-                            <span className="font-medium text-gray-900">Last opened</span>
-                            </span>
-                            <span className={classNames(checked ? 'border-indigo-600' : 'border-transparent', focus ? 'border' : 'border-2', 'pointer-events-none absolute -inset-px rounded-lg')} aria-hidden="true" />
-                        </>
-                        )}
-                    </Radio>
-                    </Link>
-                ))}
+                  {choirList.map((choir) => (
+                    <>
+                    <Fragment key={choir.id}>
+                      <div className="relative">
+                        <Link href={`/${choir.id}/music`} passHref>
+                          <Radio value={choir} className={({ focus }) => classNames(focus ? 'border-indigo-600 ring-2 ring-indigo-600' : '', !focus ? 'border-gray-300 border ' : '', 'relative block cursor-pointer rounded-lg border bg-white px-6 py-4 shadow-sm focus:outline-none sm:flex sm:justify-between border-gray-400 hover:border-gray-700')} onClick={() => updateChoir(choir.id)}>
+                            {({ checked, focus }) => (
+                              <>
+                                <div className="flex items-center justify-between w-full">
+                                  <span className="flex items-center">
+                                    <span className="flex flex-col text-sm">
+                                      <span className="font-bold text-gray-900">{choir.name}</span>
+                                      <span className="text-gray-500">Total Members: {choir.members}</span>
+                                    </span>
+                                  </span>
+                                  <div className="flex items-center space-x-4">
+                                    <span className="flex flex-col text-sm text-right">
+                                      <span className="font-medium text-gray-900">Last opened:</span>
+                                      <span className="text-gray-500">{formatTimestamp(choir.lastOpened)}</span>
+                                    </span>
+                                    <button
+                                      className='w-10 h-10 border border-indigo-300 rounded-full px-2 py-2 hover:border-indigo-500 flex items-center justify-center'
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        // Add any additional logic for button click here
+                                      }}
+                                    >
+                                      <EllipsisVerticalIcon className="w-full h-full pointer-events-none text-indigo-500" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <span className={classNames(checked ? 'border-indigo-600' : 'border-transparent', focus ? 'border' : 'border-2', 'pointer-events-none absolute -inset-px rounded-lg')} aria-hidden="true" />
+                              </>
+                            )}
+                          </Radio>
+                        </Link>
+
+
+                      </div>
+                    </Fragment>
+
+                    <button 
+                      onClick={() => {
+                        setChoirDeleteId(choir.id);
+                        setChoirDeleteName(choir.name);
+                        setRenameDelete(true);
+                      }} 
+                      className='w-10 h-10 border border-red-300 rounded-full px-2 py-2 hover:border-red-500 flex items-center justify-center'>
+                      g
+                    </button>
+                    
+      {renameDelete && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setRenameDelete(false)}></div>
+          <div className="absolute mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+            <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" >
+              Rename
+            </button>
+            <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" 
+            
+            onClick={() => {
+              setIsDeleteModalOpen(true);
+              setRenameDelete(false);
+            }} 
+            >
+              Delete
+            </button>
+          </div>
+        </>
+      )}
+    </>
+                  ))}
                 </RadioGroup>
 
 
-                {choirList.length === 0 && <div>No choirs available</div>}
+                {choirList.length === 0 && !choirsLoading && 
+                
+                <button onClick={() => setIsModalOpen(true)}
+                    type="button"
+                    className="flex flex-col items-center justify-center w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                  >
+                  <Image
+                        src="/people.png"
+                        width={256}
+                        height={256}
+                        alt="choirs"
+                        className='w-12'
+                      />
+                    <span className="mt-4 block text-sm font-semibold text-gray-900">
+                      Create Your First Choir!
+                    </span>
+                  </button>
+                
+                }
+
               </div>
             </main>
           </div>

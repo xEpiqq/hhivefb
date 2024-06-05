@@ -10,7 +10,9 @@ export async function POST(request) {
     const choirsCollectionRef = collection(db, "choirs");
     const choirDocRef = await addDoc(choirsCollectionRef, {
       name: newChoirName,
-      // ... other choir details
+      members: [],
+      admins: [ data.userId ],
+      code: Math.random().toString(36).substring(2, 8)
     });
     
     const userDocRef = doc(db, "users", data.userId);

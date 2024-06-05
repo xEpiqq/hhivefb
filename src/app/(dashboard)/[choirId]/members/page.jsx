@@ -72,6 +72,7 @@ export default function Example() {
                 className="rounded-md border-0 bg-transparent py-1.5 pl-4 pr-7 text-gray-900 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               >
                 <option>Member</option>
+                <option>Admin</option>
               </select>
             </div>
           </div>
