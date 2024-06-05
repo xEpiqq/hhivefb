@@ -32,6 +32,7 @@ export default function ChatScreen() {
   console.log(user);
 
   const [messages, setMessages] = useState([]);
+  const [messageGroups, setMessageGroups] = useState([]);
   const [inputText, setInputText] = useState("");
   const [showIcons, setShowIcons] = useState(false);
   const [emojiKeyboard, setEmojiKeyboard] = useState(false);
@@ -59,6 +60,33 @@ export default function ChatScreen() {
   useEffect(() => {
     // Scroll to the div with the id of "bottom" when the messages change
     bottom.current.scrollIntoView({ behavior: "smooth" });
+
+    // Organize messages into groups
+    // All messages within 10 minutes of each other are in the same group
+    // If a message is from a different user, it starts a new group
+    const newMessageGroups = [];
+    let currentGroup = [];
+    let previousMessage = null;
+    for (const message of messages) {
+      if (
+        previousMessage &&
+        message.user.id !== previousMessage.user.id 
+        // &&
+        // message.createdAt.toDate().getTime() - previousMessage.createdAt.toDate().getTime() >
+        //   10 * 60 * 1000
+      ) {
+        console.log("New group started!");
+        newMessageGroups.push(currentGroup);
+        currentGroup = [];
+      }
+      console.log("Adding message to group: ", message.message);
+      currentGroup.push(message);
+      previousMessage = message;
+    }
+    newMessageGroups.push(currentGroup);
+
+    setMessageGroups(newMessageGroups);
+    console.log(newMessageGroups);
   }, [messages]);
 
   const handleSendMessage = async () => {
@@ -211,7 +239,13 @@ export default function ChatScreen() {
     }
   }
 
-  const renderItem = ({ item, index }) => {
+  const renderItem = ({ group, index }) => {
+    console.log(group)
+
+    if (!group || group.length === 0) {
+      return null;
+    }
+    const item = group[0];
     const previousItem =
       index < messages.length - 1 ? messages[index + 1] : null;
     const isSameUser = previousItem && item.user.id === previousItem.user.id;
@@ -238,10 +272,12 @@ export default function ChatScreen() {
       }
     };
 
+    console.log("I am here")
+
     return (
       <div className="flex flex-col items-start px-4">
         <hr className="bg-gray-200 mr-2 mb-3" />{" "}
-        <div className="flex max-w-fit flex-row items-start px-4">
+        <div className="flex flex-row items-start px-4 w-full">
           {showProfilePicture && (
             <div className="relative">
               <img
@@ -252,7 +288,7 @@ export default function ChatScreen() {
             </div>
           )}
           <div
-            className={`rounded-xl w-fit ${showProfilePicture ? "" : "ml-9"}`}
+            className={`rounded-xl w-full ${showProfilePicture ? "" : "ml-9"}`}
           >
             {showProfilePicture && (
               <div className="flex flex-row items-center gap-2 pl-4">
@@ -271,11 +307,13 @@ export default function ChatScreen() {
             )}
             <button
               onMouseDown={() => handleNewReaction(item.id)}
-              className="text-start"
+              className="text-start w-full"
             >
-              <p className="text-base text-gray-800 px-4 pb-2 break-words max-w-fit">
-                {item.message}
+              {group.map((itemText) => (
+              <p className="text-base text-gray-800 px-4 pb-2 break-words max-w-fit text-wrap overflow:hidden">
+                {itemText.message}
               </p>
+            ))}
             </button>
             {item.file && (
               <img
@@ -343,8 +381,8 @@ export default function ChatScreen() {
         />
       </div>
       <ol ref={flatListRef} className="flex-1">
-        {messages?.map((item) => (
-          <li key={item.id}>{renderItem({ item })}</li>
+        {messageGroups?.map((item, index) => (
+          <li key={item[0]?.id || index}>{renderItem({ group: item, index })}</li>
         ))}
       </ol>
       <div ref={bottom}></div>
