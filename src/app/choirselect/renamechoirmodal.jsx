@@ -1,30 +1,38 @@
 "use client";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useRouter } from 'next/navigation';
 
-export default function RenameChoirModal({ open, setOpen, user }) {
-  const [title, setTitle] = useState("");
+export default function RenameChoirModal({ open, setOpen, user, choirid, choirname }) {
+  const [newChoirName, setNewChoirName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  async function createNewChoir() {
+  async function renameChoir() {
     setIsLoading(true);
+    const trimmedName = newChoirName.trim();
     const response = await fetch('/api/renamechoir', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: title, userId: user.id })
+      body: JSON.stringify({ choirId: choirid, newName: trimmedName, userId: user.id })
     });
     const data = await response.json();
     setIsLoading(false);
     setOpen(false);
+    setNewChoirName("");
     router.refresh();
   }
 
+  useEffect(() => {
+    if (!open) {
+      setNewChoirName("");
+    }
+  }, [open]);
+
   return (
-    <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-[100]" onClose={setOpen}>
+    <Transition.Root show={open} as={Fragment} className='z-50'>
+      <Dialog as="div" className="fixed z-[100]" static onClose={setOpen}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -53,8 +61,8 @@ export default function RenameChoirModal({ open, setOpen, user }) {
                   className="mt-5 sm:mt-4 sm:flex sm:flex-col"
                   onSubmit={(e) => {
                     e.preventDefault();
-                    if (title.trim() !== '') {
-                      createNewChoir();
+                    if (newChoirName.trim()) {
+                      renameChoir();
                     }
                   }}
                 >
@@ -74,24 +82,24 @@ export default function RenameChoirModal({ open, setOpen, user }) {
                         as="h3"
                         className="text-base font-semibold leading-6 text-gray-900"
                       >
-                        Add New Choir
+                        Rename {choirname}
                       </Dialog.Title>
                       <div className="flex flex-col w-full mt-3">
                         <label
-                          htmlFor="title"
+                          htmlFor="newChoirName"
                           className="block text-sm font-medium leading-6 text-gray-900"
                         >
-                          Title
+                          New Choir Name
                         </label>
                         <div className="mt-2">
                           <input
                             type="text"
-                            name="title"
-                            id="title"
-                            className="block w-full rounded-md px-2 border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            placeholder="Choir Name"
-                            value={title}
-                            onChange={(e) => setTitle(e.target.value)}
+                            name="newChoirName"
+                            id="newChoirName"
+                            className="block w-full rounded-md px-2 border-1 py-1.5 text-gray-900 placeholder:text-gray-400 sm:text-sm sm:leading-6 outline-none bg-gray-100"
+                            placeholder="Enter new choir name"
+                            value={newChoirName}
+                            onChange={(e) => setNewChoirName(e.target.value)}
                           />
                         </div>
                       </div>
@@ -100,8 +108,8 @@ export default function RenameChoirModal({ open, setOpen, user }) {
                   <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                     <button
                       type="submit"
-                      className="inline-flex w-full justify-center rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 sm:ml-3 sm:w-auto"
-                      disabled={isLoading}
+                      className={`inline-flex w-full justify-center rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm sm:ml-3 sm:w-auto bg-blue-500 hover:bg-blue-600`}
+                      disabled={isLoading || !newChoirName.trim()}
                     >
                       {isLoading ? (
                         <svg
@@ -125,7 +133,7 @@ export default function RenameChoirModal({ open, setOpen, user }) {
                           ></path>
                         </svg>
                       ) : (
-                        'Create Choir'
+                        'Rename Choir'
                       )}
                     </button>
                     <button
