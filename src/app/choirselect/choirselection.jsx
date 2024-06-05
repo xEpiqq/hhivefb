@@ -10,6 +10,7 @@ import Image from 'next/image'
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import NewChoirModal from './newchoirmodal';
 import DeleteChoirModal from './deletechoirmodal';
+import RenameChoirModal from './renamechoirmodal';
 
 const userNavigation = [
   { name: 'Your Profile', href: '#' },
@@ -26,6 +27,7 @@ export default function ChoirSelection({ user }) {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState(false);
   const [newChoirName, setNewChoirName] = useState('');
   const [choirList, setChoirList] = useState([]);
   const [choirsLoading, setChoirsLoading] = useState(true);
@@ -111,6 +113,14 @@ export default function ChoirSelection({ user }) {
       <DeleteChoirModal
         open={isDeleteModalOpen}
         setOpen={setIsDeleteModalOpen}
+        user={user}
+        choirid={choirDeleteId}
+        choirname={choirDeleteName}
+      />
+
+      <RenameChoirModal
+        open={isRenameModalOpen}
+        setOpen={setIsRenameModalOpen}
         user={user}
         choirid={choirDeleteId}
         choirname={choirDeleteName}
@@ -232,80 +242,87 @@ export default function ChoirSelection({ user }) {
                   </div>
                 }
 
-                <RadioGroup value={selected} onChange={setSelected} className="flex flex-col gap-2 mt-4">
-                  {choirList.map((choir) => (
-                    <>
-                    <Fragment key={choir.id}>
-                      <div className="relative">
-                        <Link href={`/${choir.id}/music`} passHref>
-                          <Radio value={choir} className={({ focus }) => classNames(focus ? 'border-indigo-600 ring-2 ring-indigo-600' : '', !focus ? 'border-gray-300 border ' : '', 'relative block cursor-pointer rounded-lg border bg-white px-6 py-4 shadow-sm focus:outline-none sm:flex sm:justify-between border-gray-400 hover:border-gray-700')} onClick={() => updateChoir(choir.id)}>
-                            {({ checked, focus }) => (
-                              <>
-                                <div className="flex items-center justify-between w-full">
-                                  <span className="flex items-center">
-                                    <span className="flex flex-col text-sm">
-                                      <span className="font-bold text-gray-900">{choir.name}</span>
-                                      <span className="text-gray-500">Total Members: {choir.members}</span>
-                                    </span>
-                                  </span>
-                                  <div className="flex items-center space-x-4">
-                                    <span className="flex flex-col text-sm text-right">
-                                      <span className="font-medium text-gray-900">Last opened:</span>
-                                      <span className="text-gray-500">{formatTimestamp(choir.lastOpened)}</span>
-                                    </span>
-                                    <button
-                                      className='w-10 h-10 border border-indigo-300 rounded-full px-2 py-2 hover:border-indigo-500 flex items-center justify-center'
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        // Add any additional logic for button click here
-                                      }}
-                                    >
-                                      <EllipsisVerticalIcon className="w-full h-full pointer-events-none text-indigo-500" />
-                                    </button>
-                                  </div>
-                                </div>
-                                <span className={classNames(checked ? 'border-indigo-600' : 'border-transparent', focus ? 'border' : 'border-2', 'pointer-events-none absolute -inset-px rounded-lg')} aria-hidden="true" />
-                              </>
-                            )}
-                          </Radio>
-                        </Link>
+<RadioGroup value={selected} onChange={setSelected} className="flex flex-col gap-2 mt-4">
+  {choirList.map((choir) => (
+    <Fragment key={choir.id}>
+      <div className="relative">
+        <Link href={`/${choir.id}/music`} passHref>
+          <Radio
+            value={choir}
+            className="border-gray-300 border relative block cursor-pointer rounded-lg bg-white px-6 py-4 shadow-sm focus:outline-none sm:flex sm:justify-between hover:border-gray-500"
+            onClick={() => updateChoir(choir.id)}
+          >
+            {({ checked, focus }) => (
+              <>
+                <div className="flex items-center justify-between w-full">
+                  <span className="flex items-center">
+                    <span className="flex flex-col text-sm">
+                      <span className="font-bold text-gray-900">{choir.name}</span>
+                      <span className="text-gray-500">Total Members: {choir.members}</span>
+                    </span>
+                  </span>
+                  <div className="flex items-center space-x-4 mr-10">
+                    <span className="flex flex-col text-sm text-right">
+                      <span className="font-medium text-gray-900">Last opened</span>
+                      <span className="text-gray-500">{formatTimestamp(choir.lastOpened)}</span>
+                    </span>
+                  </div>
+                </div>
+                <span
+                  className={classNames(
+                    checked ? 'border-indigo-600' : 'border-transparent',
+                    focus ? 'border' : 'border-2',
+                    'pointer-events-none absolute -inset-px rounded-lg'
+                  )}
+                  aria-hidden="true"
+                />
+              </>
+            )}
+          </Radio>
+        </Link>
+
+        <div className="absolute top-0 right-0 h-full w-10 flex items-center justify-center py-6 group cursor-pointer" 
+          onClick={(e) => {
+            e.stopPropagation();
+            setChoirDeleteId(choir.id);
+            setChoirDeleteName(choir.name);
+            setRenameDelete(!renameDelete);
+          }}
+        >
+          <EllipsisVerticalIcon className="w-full h-full pointer-events-none text-indigo-500 group-hover:text-indigo-700" />
+        </div>
+
+        {renameDelete && choirDeleteId === choir.id && (
+          <>
+            <div className="fixed inset-0 z-40" onClick={() => setRenameDelete(false)}></div>
+            <div className="absolute mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 top-[66px] right-0">
+              <button
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                onClick={() => {
+                  setIsRenameModalOpen(true);
+                  setRenameDelete(false);
+                }}
+              >
+                Rename
+              </button>
+              <button
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                onClick={() => {
+                  setIsDeleteModalOpen(true);
+                  setRenameDelete(false);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </Fragment>
+  ))}
+</RadioGroup>
 
 
-                      </div>
-                    </Fragment>
-
-                    <button 
-                      onClick={() => {
-                        setChoirDeleteId(choir.id);
-                        setChoirDeleteName(choir.name);
-                        setRenameDelete(true);
-                      }} 
-                      className='w-10 h-10 border border-red-300 rounded-full px-2 py-2 hover:border-red-500 flex items-center justify-center'>
-                      g
-                    </button>
-                    
-      {renameDelete && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setRenameDelete(false)}></div>
-          <div className="absolute mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
-            <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" >
-              Rename
-            </button>
-            <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left" 
-            
-            onClick={() => {
-              setIsDeleteModalOpen(true);
-              setRenameDelete(false);
-            }} 
-            >
-              Delete
-            </button>
-          </div>
-        </>
-      )}
-    </>
-                  ))}
-                </RadioGroup>
 
 
                 {choirList.length === 0 && !choirsLoading && 

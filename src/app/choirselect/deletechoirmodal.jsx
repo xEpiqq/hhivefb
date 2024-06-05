@@ -1,5 +1,5 @@
 "use client";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useRouter } from 'next/navigation';
@@ -19,8 +19,15 @@ export default function DeleteChoirModal({ open, setOpen, user, choirid, choirna
     const data = await response.json();
     setIsLoading(false);
     setOpen(false);
+    setConfirmationCode("");
     router.refresh();
   }
+
+  useEffect(() => {
+    if (!open) {
+      setConfirmationCode("");
+    }
+  }, [open]);
 
   return (
     <Transition.Root show={open} as={Fragment} className='z-50'>
