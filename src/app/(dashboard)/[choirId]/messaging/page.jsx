@@ -70,7 +70,7 @@ export default function ChatScreen() {
     for (const message of messages) {
       if (
         previousMessage &&
-        message.user.id !== previousMessage.user.id 
+        message.user.id !== previousMessage.user.id
         // &&
         // message.createdAt.toDate().getTime() - previousMessage.createdAt.toDate().getTime() >
         //   10 * 60 * 1000
@@ -240,7 +240,7 @@ export default function ChatScreen() {
   }
 
   const renderItem = ({ group, index }) => {
-    console.log(group)
+    console.log(group);
 
     if (!group || group.length === 0) {
       return null;
@@ -272,7 +272,7 @@ export default function ChatScreen() {
       }
     };
 
-    console.log("I am here")
+    console.log("I am here");
 
     return (
       <div className="flex flex-col items-start px-4">
@@ -310,20 +310,21 @@ export default function ChatScreen() {
               className="text-start w-full"
             >
               {group.map((itemText) => (
-              <p className="text-base text-gray-800 px-4 pb-2 break-words max-w-fit text-wrap overflow:hidden">
-                {itemText.message}
-              </p>
-            ))}
+                <p className="text-base text-gray-800 px-4 pb-2 break-words max-w-fit text-wrap overflow:hidden">
+                  {itemText.message}
+
+                  {itemText.file && (
+                    <img
+                      onClick={() => setPictureZoom(item.id)}
+                      src={itemText.file?.url}
+                      target="_blank"
+                      className="rounded-xl shadow-lg max-w-[300px] max-h-[300px] cursor-pointer"
+                      rel="noopener noreferrer"
+                    ></img>
+                  )}
+                </p>
+              ))}
             </button>
-            {item.file && (
-              <img
-                onClick={() => setPictureZoom(item.id)}
-                src={item.file.url}
-                target="_blank"
-                className="rounded-xl shadow-lg max-w-[300px] max-h-[300px] cursor-pointer"
-                rel="noopener noreferrer"
-              ></img>
-            )}
             <div className="flex flex-row items-center px-4 pb-2">
               {Object.entries(
                 Object.entries(item.reactions || {}).reduce(
@@ -382,7 +383,9 @@ export default function ChatScreen() {
       </div>
       <ol ref={flatListRef} className="flex-1">
         {messageGroups?.map((item, index) => (
-          <li key={item[0]?.id || index}>{renderItem({ group: item, index })}</li>
+          <li key={item[0]?.id || index}>
+            {renderItem({ group: item, index })}
+          </li>
         ))}
       </ol>
       <div ref={bottom}></div>
