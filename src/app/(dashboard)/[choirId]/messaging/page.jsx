@@ -315,7 +315,7 @@ export default function ChatScreen() {
 
                   {itemText.file && (
                     <img
-                      onClick={() => setPictureZoom(item.id)}
+                      onClick={() => setPictureZoom(itemText.id)}
                       src={itemText.file?.url}
                       target="_blank"
                       className="rounded-xl shadow-lg max-w-[300px] max-h-[300px] cursor-pointer"
