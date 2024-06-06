@@ -15,10 +15,6 @@ export async function POST(request) {
     return NextResponse.json({ status: 404, message: `No user found with email ${email}... create an account and come back to this page.`, action: "USER_NOT_FOUND" });
   }
 
-  const userDoc = userDocs.docs[0];
-  const uid = userDoc.id;
-  console.log("Found UID:", uid);
-
   const user = await getCurrentUser();
 
   if (!user || user.email !== email) {
@@ -46,32 +42,37 @@ export async function POST(request) {
 
   console.log("Member code match!" + membercode + "=" + trueMemberCode);
 
-  if (!choirDoc.members.includes(uid)) {
-    const newMembers = [...choirDoc.members, uid];
-    await updateDoc(choirDocRef, {
-      members: newMembers,
-    });
-    console.log("New members", newMembers);
-  } else {
-    console.log(`User ${email} is already a member of the choir`);
-  }
+  await Promise.all(userDocs.docs.map(async (userDoc) => {
+    const uid = userDoc.id;
+    console.log("Found UID:", uid);
 
-  const userRef = doc(db, "users", uid);
-  const userData = userDoc.data();
+    if (!choirDoc.members.includes(uid)) {
+      const newMembers = [...choirDoc.members, uid];
+      await updateDoc(choirDocRef, {
+        members: newMembers,
+      });
+      console.log("New members", newMembers);
+    } else {
+      console.log(`User ${email} is already a member of the choir`);
+    }
 
-  if (!userData.choirs_joined) {
-    userData.choirs_joined = [];
-  }
+    const userRef = doc(db, "users", uid);
+    const userData = userDoc.data();
 
-  if (!userData.choirs_joined.includes(choirId)) {
-    const updatedChoirsJoined = [...userData.choirs_joined, choirId];
-    await updateDoc(userRef, {
-      choirs_joined: updatedChoirsJoined,
-    });
-    console.log(`User ${email} updated with new choir: ${choirId}`);
-  } else {
-    console.log(`User ${email} already has the choir ${choirId} in their list`);
-  }
+    if (!userData.choirs_joined) {
+      userData.choirs_joined = [];
+    }
+
+    if (!userData.choirs_joined.includes(choirId)) {
+      const updatedChoirsJoined = [...userData.choirs_joined, choirId];
+      await updateDoc(userRef, {
+        choirs_joined: updatedChoirsJoined,
+      });
+      console.log(`User ${email} updated with new choir: ${choirId}`);
+    } else {
+      console.log(`User ${email} already has the choir ${choirId} in their list`);
+    }
+  }));
 
   return NextResponse.json({ status: 200, message: "Member added successfully" });
 }
