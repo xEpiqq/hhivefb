@@ -10,6 +10,7 @@ export default function useChoir(choirId) {
   const [members, setMembers] = useState([]);
   const [calendar, setCalendar] = useState([]);
   const [choirCode, setChoirCode] = useState(null);
+  const [admins, setAdmins] = useState([]);
 
   useEffect(() => {
     loadChoir();
@@ -164,6 +165,7 @@ export default function useChoir(choirId) {
         // Set default values if fields are missing
         const choir = data.choir || {};
         setSongs(choir.songs || []);
+        setAdmins(choir.admins || []);
         setName(choir.name || "Unnamed Choir");
         setChoirCode(choir.code || null);
         setMembers(choir.members || []);
@@ -196,5 +198,6 @@ export default function useChoir(choirId) {
     addFile,
     addCalendarEvent,
     updateLastOpened,
+    admins
   };
 }
