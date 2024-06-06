@@ -12,7 +12,8 @@ export async function POST(request) {
       name: newChoirName,
       members: [],
       admins: [ data.userId ],
-      code: Math.random().toString(36).substring(2, 8)
+      code: Math.random().toString(36).substring(2, 8),
+      adminCode: Math.random().toString(36).substring(2, 8)
     });
     
     const userDocRef = doc(db, "users", data.userId);

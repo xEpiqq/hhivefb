@@ -35,6 +35,12 @@ export default function ChoirSelection({ user }) {
   const [choirDeleteName, setChoirDeleteName] = useState('');
   const [renameDelete, setRenameDelete] = useState(false);
 
+  if (!user) {
+    if (typeof window !== 'undefined') {
+      router.push('/');
+    }
+    return null;
+  }
 
   useEffect(() => {
     if (user && user.id) {
