@@ -16,10 +16,6 @@ export async function POST(request) {
     return NextResponse.json({ status: 404, message: `No user found with email ${email}... create an account and come back to this page.`, action: "USER_NOT_FOUND" });
   }
 
-  const userDoc = userDocs.docs[0];
-  const uid = userDoc.id;
-  console.log("Found UID:", uid);
-
   const user = await getCurrentUser();
 
   if (!user || user.email !== email) {
@@ -48,36 +44,45 @@ export async function POST(request) {
 
   console.log("Admin code match!" + admincode + "=" + trueAdminCode);
 
-  // Check if the user is already an admin
-  if (!choirDoc.admins.includes(uid)) {
-    const newAdmins = [...choirDoc.admins, uid];
+  let updated = false;
+
+  // Iterate through all user documents
+  for (const userDoc of userDocs.docs) {
+    const uid = userDoc.id;
+    console.log("Found UID:", uid);
+
+    // Check if the user is already an admin
+    if (!choirDoc.admins.includes(uid)) {
+      choirDoc.admins.push(uid);
+      updated = true;
+    } else {
+      console.log(`User ${email} is already an admin of the choir`);
+    }
+
+    // Update user's choir list if not already present
+    const userRef = doc(db, "users", uid);
+    const userData = userDoc.data();
+
+    if (!userData.choirs) {
+      userData.choirs = {};
+    }
+
+    if (!(choirId in userData.choirs)) {
+      userData.choirs[choirId] = choirDoc.name;
+      await updateDoc(userRef, {
+        choirs: userData.choirs,
+      });
+      console.log(`User ${email} updated with new choir: ${choirId}`);
+    } else {
+      console.log(`User ${email} already has the choir ${choirId} in their list`);
+    }
+  }
+
+  if (updated) {
     await updateDoc(choirDocRef, {
-      admins: newAdmins,
+      admins: choirDoc.admins,
     });
-    console.log("New admins", newAdmins);
-  } else {
-    console.log(`User ${email} is already an admin of the choir`);
-  }
-
-  // Update user's choir list if not already present
-  const userRef = doc(db, "users", uid);
-  const userData = userDoc.data();
-
-  if (!userData.choirs) {
-    userData.choirs = {};
-  }
-
-  if (!(choirId in userData.choirs)) {
-    const updatedChoirs = {
-      ...userData.choirs,
-      [choirId]: choirDoc.name,
-    };
-    await updateDoc(userRef, {
-      choirs: updatedChoirs,
-    });
-    console.log(`User ${email} updated with new choir: ${choirId}`);
-  } else {
-    console.log(`User ${email} already has the choir ${choirId} in their list`);
+    console.log("New admins", choirDoc.admins);
   }
 
   return NextResponse.json({ status: 200, message: "Admin added successfully" });
