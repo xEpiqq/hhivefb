@@ -24,14 +24,14 @@ export async function POST(request, { params }) {
 
     // get the song document from the firestore
     const songDocRef = doc(db, "choirs", choirId, "songs", songId);
-    const songDoc = getDoc(songDocRef);
+    const songDoc = await getDoc(songDocRef);
 
     let fileRefs = [];
 
     // Check if file is pdf
     if (file.type == "application/pdf") {
       // convert pdf to image
-      const outputImages = pdf2img.convert(await file.arrayBuffer());
+      const outputImages = await pdf2img.convert(await file.arrayBuffer());
       fileName = fileName + ".png";
 
       // upload images to storage
@@ -41,6 +41,7 @@ export async function POST(request, { params }) {
           choirId + "/songs/" + songId + "/" + fileName + i
         );
         await uploadBytes(imageRef, outputImages[i]);
+        fileRefs.push(imageRef); // Add imageRef to fileRefs array
       }
       return NextResponse.json({
         status: 200,
@@ -48,26 +49,13 @@ export async function POST(request, { params }) {
       });
     } else {
       // add the file to the storage
-
-      fileRefs.push(
-        ref(storage, choirId + "/songs/" + songId + "/" + fileName)
-      );
+      const fileRef = ref(storage, choirId + "/songs/" + songId + "/" + fileName);
       await uploadBytes(fileRef, file);
-
-      console.log("data.get('file').name: ", fileName);
-      console.log("fileRef.fullPath: ", fileRef.fullPath);
+      fileRefs.push(fileRef); // Add fileRef to fileRefs array
     }
 
     // update the song document with the file
-    // await updateDoc(songDocRef, {
-    //   files: arrayUnion({
-    //     name: fileName,
-    //     url: fileRef.fullPath,
-    //   }),
-    // });
-
     for (let i = 0; i < fileRefs.length; i++) {
-      console.log(fileRefs[i]);
       await updateDoc(songDocRef, {
         files: arrayUnion({
           name: fileName,

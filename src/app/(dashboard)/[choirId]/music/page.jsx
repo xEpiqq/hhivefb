@@ -2,13 +2,13 @@
 import { useState, useContext, useEffect } from "react";
 import { EllipsisVerticalIcon } from "@heroicons/react/20/solid";
 import { ChoirContext } from "../ChoirContext";
-import AddSongModal from "./AddSongModal";
 import Link from "next/link";
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react'
 import { EllipsisHorizontalIcon } from '@heroicons/react/20/solid'
 import { Fragment } from 'react'
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -260,7 +260,6 @@ export default function MusicPage() {
   const choir = useContext(ChoirContext);
   const [music, setMusic] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
 
@@ -270,11 +269,7 @@ export default function MusicPage() {
   }, [choir]);
 
   const handleAddMusicClick = () => {
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
+    window.location.href = `/${choir.choirId}/music/stepone/`
   };
 
   return (
@@ -289,7 +284,7 @@ export default function MusicPage() {
             className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             onClick={handleAddMusicClick}
           >
-            Add Music Folder
+            Create New Song
           </button>
         </div>
       </div>
@@ -342,8 +337,6 @@ export default function MusicPage() {
   )}
 </main>
 
-
-      {showModal && <AddSongModal closeModal={handleCloseModal} />}
     </>
   );
 }
