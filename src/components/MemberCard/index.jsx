@@ -1,5 +1,5 @@
 import { ChoirContext } from "../../app/(dashboard)/[choirId]/ChoirContext";
-import { useState, useContext, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 
 export default function MemberCard({ member, key }) {
   const choir = useContext(ChoirContext);
@@ -7,7 +7,7 @@ export default function MemberCard({ member, key }) {
     <li key={key}>
       <button
         type="button"
-        className="group flex w-full items-center justify-between space-x-3 rounded-full border border-gray-300 p-2 text-left shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+        className="group flex w-full items-center justify-between space-x-3 rounded-full border border-gray-300 p-2 text-left shadow-sm hover:bg-gray-50"
       >
         <span className="flex min-w-0 flex-1 items-center space-x-3">
           <span className="block flex-shrink-0">
@@ -17,13 +17,7 @@ export default function MemberCard({ member, key }) {
             <span className="block truncate text-sm font-medium text-gray-900">
               {member.name}
             </span>
-            <span className="block truncate text-sm font-medium text-gray-500">
-              {choir.admins.includes(member.userId) ? (
-                <span className="text-red-600">Admin</span>
-              ) : (
-                <span>Member</span>
-              )}
-            </span>
+            
           </span>
         </span>
         <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center">

@@ -2,8 +2,8 @@
 import MemberCard from "@/components/MemberCard";
 import { ChoirContext } from "../ChoirContext";
 import { useState, useContext, useEffect } from "react";
-import Skeleton from 'react-loading-skeleton';
-import 'react-loading-skeleton/dist/skeleton.css';
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 export default function Example() {
   const choir = useContext(ChoirContext);
@@ -21,62 +21,58 @@ export default function Example() {
   }
 
   async function sendAdminInvite() {
-
     const choirCode = choir.choirCode;
     const choirName = choir.name;
     const choirId = choir.choirId;
 
-    const response = await fetch('/api/sendadmininvite', {
-      method: 'POST',
+    const response = await fetch("/api/sendadmininvite", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ inputBox, choirName, choirCode, choirId }),
     });
 
     if (!response.ok) {
-      throw new Error('Failed to send admin invite email');
+      throw new Error("Failed to send admin invite email");
     }
     const data = await response.json();
-    alert('Invite email sent. Check spam folder if not in inbox.');
+    alert("Invite email sent. Check spam folder if not in inbox.");
     return data;
   }
 
-
-
   async function sendMemberInvite() {
-  
     const choirCode = choir.choirCode;
     const choirName = choir.name;
     const choirId = choir.choirId;
-  
-    const response = await fetch('/api/sendmemberinvite', {
-      method: 'POST',
+
+    const response = await fetch("/api/sendmemberinvite", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ inputBox, choirName, choirCode, choirId }),
     });
-  
+
     if (!response.ok) {
-      throw new Error('Failed to send member invite email');
+      throw new Error("Failed to send member invite email");
     }
-  
+
     const data = await response.json();
-    alert('Invite email sent. Check spam folder if not in inbox.');
-  
+    alert("Invite email sent. Check spam folder if not in inbox.");
+
     return data;
   }
 
   useEffect(() => {
     if (choir.members) {
       setIsLoading(false);
-      console.log(choir.admins)
+      console.log(choir.admins);
     }
   }, [choir.members]);
 
   return (
-    <div className="mx-auto max-w-md sm:max-w-3x">
+    <div className="mx-auto sm:max-w-3x">
       <div>
         <div className="text-center">
           <svg
@@ -97,7 +93,11 @@ export default function Example() {
             Members of <span className="font-bold">{choir.name}</span>
           </h2>
           <p className="mt-1 text-sm text-gray-500">
-            Add members with code <span className="text-indigo-600 font-black">{choir.choirCode}</span> or through email invite
+            Add members with code{" "}
+            <span className="text-indigo-600 font-black">
+              {choir.choirCode}
+            </span>{" "}
+            or through email invite
           </p>
         </div>
         <form className="mt-6 sm:flex sm:items-center">
@@ -109,8 +109,8 @@ export default function Example() {
               type="text"
               name="emails"
               id="emails"
-              className="peer relative col-start-1 row-start-1 border-0 bg-transparent py-1.5 px-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 outline-none foc"
-              placeholder="Enter an email"
+              className="peer relative col-start-1 row-start-1 border-0 bg-transparent py-3 px-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 outline-none foc"
+              placeholder="Enter an email"  
               value={inputBox}
               onChange={(e) => setInputBox(e.target.value)}
             />
@@ -140,7 +140,7 @@ export default function Example() {
           </div>
           <div className="mt-3 sm:ml-4 sm:mt-0 sm:flex-shrink-0">
             <button
-              className="block w-full rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="block w-full rounded-md bg-indigo-600 px-3 py-3.5 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               onClick={sendInvite}
             >
               Send invite
@@ -148,23 +148,21 @@ export default function Example() {
           </div>
         </form>
       </div>
-      <div className="mt-10">
+      <div className="mt-10 w-full">
         <h3 className="text-sm font-medium text-gray-500">
-          Current Choir Members In <span className="font-bold">{choir.name}</span>
+          Current Choir Members In{" "}
+          <span className="font-bold">{choir.name}</span>
         </h3>
-        <ul role="list" className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {isLoading ? (
-            Array.from({ length: 2 }).map((_, idx) => (
-              <li key={idx}>
-                <Skeleton height={50} borderRadius={20} />
-              </li>
-            ))
-          ) : (
-            choir.members.map((member, personIdx) => (
-              <MemberCard key={personIdx} member={member} />      
-            ))
-
-          )}
+        <ul role="list" className="mt-4 flex flex-col gap-3">
+          {isLoading
+            ? Array.from({ length: 2 }).map((_, idx) => (
+                <li key={idx}>
+                  <Skeleton height={50} borderRadius={20} />
+                </li>
+              ))
+            : choir.members.map((member, personIdx) => (
+                <MemberCard key={personIdx} member={member} />
+              ))}
         </ul>
       </div>
     </div>
