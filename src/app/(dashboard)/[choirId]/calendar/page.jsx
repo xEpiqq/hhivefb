@@ -17,19 +17,19 @@ function NavigationLabel({ label }) {
 
 function TileContent({ date, events }) {
   const hasEvent = events.some((event) => {
-    const eventDate = new Date(event.date);
-    return (
-      eventDate.getDate() === date.getDate() &&
-      eventDate.getMonth() === date.getMonth() &&
-      eventDate.getFullYear() === date.getFullYear()
-    );
+    const eventDate = new Date(event.date).toISOString().split('T')[0];
+    const currentDate = date.toISOString().split('T')[0];
+    return eventDate === currentDate;
   });
+
   return (
     <div className="h-12 w-12 flex items-center justify-center">
       {hasEvent && <div className="h-2 w-2 bg-blue-500 rounded-full"></div>}
     </div>
   );
 }
+
+
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
@@ -57,6 +57,7 @@ export default function CalendarPage() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [newCalendarEventModalOpen, setNewCalendarEventModalOpen] = useState(false);
   const [sortedEvents, setSortedEvents] = useState([]);
+  const [editEventData, setEditEventData] = useState(null);
 
   useEffect(() => {
     setSortedEvents([...choir.calendar].sort((a, b) => new Date(a.date) - new Date(b.date)));
@@ -65,10 +66,29 @@ export default function CalendarPage() {
   const addEvent = (data) => {
     const event = {
       ...data,
-      date: new Date(data.date).toISOString(),
+      date: new Date(`${data.date}T${data.time}`).toISOString(),
     };
     choir.addCalendarEvent(event);
   };
+
+  const editEvent = (eventId, data) => {
+    const event = {
+      ...data,
+      date: new Date(`${data.date}T${data.time}`).toISOString(),
+    };
+    choir.editCalendarEvent(eventId, event);
+  };
+
+  const deleteEvent = (eventId) => {
+    console.log("delete event", eventId);
+    choir.deleteCalendarEvent(eventId);
+  };
+
+  const handleEditEvent = (event) => {
+    setEditEventData(event);
+    setNewCalendarEventModalOpen(true);
+  };
+  
 
   const handlePreviousMonth = () => {
     const prevMonth = new Date(selectedDate ? selectedDate.getFullYear() : new Date().getFullYear(), selectedDate ? selectedDate.getMonth() - 1 : new Date().getMonth() - 1, 1);
@@ -86,13 +106,11 @@ export default function CalendarPage() {
 
   const filteredEvents = selectedDate
     ? sortedEvents.filter(event => {
-        const eventDate = new Date(event.date);
-        return (
-          eventDate.getDate() === selectedDate.getDate() &&
-          eventDate.getMonth() === selectedDate.getMonth() &&
-          eventDate.getFullYear() === selectedDate.getFullYear()
-        );
-      })
+      const eventDate = new Date(event.date);
+      return (
+        eventDate.toDateString() === selectedDate.toDateString()
+      );
+    })
     : sortedEvents;
 
   const days = getDaysInMonth(selectedDate || new Date());
@@ -103,6 +121,8 @@ export default function CalendarPage() {
         open={newCalendarEventModalOpen}
         setOpen={setNewCalendarEventModalOpen}
         submit={addEvent}
+        selectedDate={selectedDate}
+        eventData={editEventData}
       />
       <h2 className="text-base font-semibold leading-6 text-gray-900">
         Upcoming meetings
@@ -201,15 +221,15 @@ export default function CalendarPage() {
                         />
                       </dt>
                       <dd>
-                        <time dateTime={event.datetime}>
-                          {new Date(event.date).toLocaleString("en-US", {
-                            month: "long",
-                            day: "numeric",
-                            year: "numeric",
-                          })}{" "}
-                          at {new Date(event.date).toLocaleTimeString()}
-                        </time>
-                      </dd>
+                      <time dateTime={event.datetime}>
+                        {new Date(event.date).toLocaleString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}{" "}
+                        at {new Date(event.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </time>
+                    </dd>
                     </div>
                     <div className="mt-2 flex items-start space-x-3 xl:ml-3.5 xl:mt-0 xl:border-l xl:border-gray-400 xl:border-opacity-50 xl:pl-3.5">
                       <dt className="mt-0.5">
@@ -250,32 +270,48 @@ export default function CalendarPage() {
                   >
                     <Menu.Items className="absolute right-0 z-10 mt-2 w-36 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                       <div className="py-1">
-                        <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              href="#"
-                              className={classNames(
-                                active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                                "block px-4 py-2 text-sm"
-                              )}
-                            >
-                              Edit
-                            </a>
-                          )}
-                        </Menu.Item>
-                        <Menu.Item>
-                          {({ active }) => (
-                            <a
-                              href="#"
-                              className={classNames(
-                                active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                                "block px-4 py-2 text-sm"
-                              )}
-                            >
-                              Cancel
-                            </a>
-                          )}
-                        </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            href="#"
+                            className={classNames(
+                              active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                              "block px-4 py-2 text-sm"
+                            )}
+                            onClick={() => handleEditEvent(event)}
+                          >
+                            Edit
+                          </a>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            href="#"
+                            className={classNames(
+                              active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                              "block px-4 py-2 text-sm"
+                            )}
+                            onClick={() => cancelEvent(event.eventId)}
+                          >
+                            Cancel
+                          </a>
+                        )}
+                      </Menu.Item>
+                      <Menu.Item>
+                        {({ active }) => (
+                          <a
+                            href="#"
+                            className={classNames(
+                              active ? "bg-gray-100 text-gray-900" : "text-gray-700",
+                              "block px-4 py-2 text-sm"
+                            )}
+                            onClick={() => deleteEvent(event.eventId)}
+                          >
+                            Delete
+                          </a>
+                        )}
+                      </Menu.Item>
                       </div>
                     </Menu.Items>
                   </Transition>

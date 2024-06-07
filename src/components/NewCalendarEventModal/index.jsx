@@ -1,17 +1,33 @@
 "use client";
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import {
-  ExclamationTriangleIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
-export default function NewCalendarEventModal({ open, setOpen, submit }) {
+export default function NewCalendarEventModal({ open, setOpen, submit, selectedDate, eventData  }) {
   const [title, setTitle] = useState("");
-  const [time, setTime] = useState("");
-  const [date, setDate] = useState(new Date());
   const [location, setLocation] = useState("");
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [time, setTime] = useState("18:00");
   const [notes, setNotes] = useState("");
+
+  useEffect(() => {
+    if (selectedDate) {
+      setDate(selectedDate.toISOString().split('T')[0]);
+      console.log(selectedDate);
+    }
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (eventData) {
+      console.log("event data from modal below")
+      console.log(eventData)
+      // setTitle(eventData.name || "");
+      // setDate(new Date(eventData.date).toISOString().split('T')[0]);
+      // setTime(new Date(eventData.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || "18:00");
+      // setLocation(eventData.location || "");
+      // setNotes(eventData.notes || "");
+    }
+  }, [eventData]);
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -47,6 +63,7 @@ export default function NewCalendarEventModal({ open, setOpen, submit }) {
                     submit({
                       name: title,
                       date,
+                      time,
                       location,
                       notes,
                     });
@@ -63,9 +80,6 @@ export default function NewCalendarEventModal({ open, setOpen, submit }) {
                     </button>
                   </div>
                   <div className="sm:flex sm:items-start flex-col">
-                    {/* <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                    <ExclamationTriangleIcon className="h-6 w-6 text-red-600" aria-hidden="true" />
-                  </div> */}
                     <div className="mt-3 text-center w-full sm:mt-0 sm:text-left">
                       <Dialog.Title
                         as="h3"
@@ -105,7 +119,6 @@ export default function NewCalendarEventModal({ open, setOpen, submit }) {
                             name="time"
                             id="time"
                             className="block w-full rounded-md px-2 border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            placeholder="5:00 PM"
                             value={time}
                             onChange={(e) => setTime(e.target.value)}
                           />
@@ -165,24 +178,6 @@ export default function NewCalendarEventModal({ open, setOpen, submit }) {
                             onChange={(e) => setNotes(e.target.value)}
                           />
                         </div>
-                      </div>
-
-                      <div className="flex flex-col w-full  mt-3">
-                        {/* <label
-                        htmlFor="file-name"
-                        className="text-sm font-semibold text-gray-700"
-                      >
-                        File Name
-                      </label>
-                      <input
-                        type="text"
-                        name="file-name"
-                        id="file-name"
-                        value={fileName}
-                        onChange={(e) => setFileName(e.target.value)}
-                        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="Saprano 1 - O Holy Night.pdf"
-                      /> */}
                       </div>
                     </div>
                   </div>
