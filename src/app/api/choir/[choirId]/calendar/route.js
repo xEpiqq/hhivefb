@@ -2,10 +2,8 @@ import { NextResponse } from "next/server";
 import {
   doc,
   getDoc,
-  updateDoc,
   collection,
   addDoc,
-  arrayUnion,
 } from "firebase/firestore";
 import { db } from "@/lib/firestoreAdapter";
 

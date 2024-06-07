@@ -113,6 +113,45 @@ export default function useChoir(choirId) {
     return data;
   };
 
+  const editCalendarEvent = async (eventId, updatedEvent) => {
+    const response = await fetch("/api/choir/" + choirId + "/calendaredit", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatedEvent),
+    });
+  
+    if (response.status !== 200) {
+      const data = await response.json();
+      console.error("Error editing event: ", data.message);
+      return;
+    }
+  
+    loadChoir();
+  };
+  
+  const deleteCalendarEvent = async (eventId) => {
+    const response = await fetch("/api/choir/" + choirId + "/calendardelete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ eventId }),
+    });
+  
+    if (response.status !== 200) {
+      const data = await response.json();
+      console.error("Error deleting event: ", data.message);
+      return;
+    }
+  
+    setCalendar((prevEvents) => prevEvents.filter((event) => event.eventId !== eventId));
+    loadChoir();
+  };
+  
+  
+
 
 
   const addSong = async (songName) => {
@@ -198,6 +237,8 @@ export default function useChoir(choirId) {
     addFile,
     addCalendarEvent,
     updateLastOpened,
+    editCalendarEvent,
+    deleteCalendarEvent,
     admins
   };
 }
