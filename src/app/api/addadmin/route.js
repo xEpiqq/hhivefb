@@ -7,6 +7,7 @@ import {
   query,
   where,
   getDocs,
+  setDoc
 } from "firebase/firestore";
 import { db } from "@/lib/firestoreAdapter";
 import { getCurrentUser } from "@/lib/session";

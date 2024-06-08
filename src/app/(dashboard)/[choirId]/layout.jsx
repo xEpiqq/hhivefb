@@ -25,9 +25,9 @@ export default async function Layout({ children, params }) {
   }
 
   // TODO: Re-enable this when we have choir admins
-  if (memberDoc.data().role !== "Admin") {
-    return redirect("/not-found");
-  }
+  // if (memberDoc.data().role !== "Admin") {
+  //   return redirect("/not-found");
+  // }
 
   return (
     <UserProvider user={user}>
