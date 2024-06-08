@@ -28,7 +28,7 @@ export default function MemberCard({ member, key }) {
                 : "bg-green-50 text-green-700 ring-green-600/20"
             }`}
           >
-            {choir.admins.includes(member.userId) ? "Admin" : "Member"}
+            {member.role}
           </span>
         </span>
       </button>
