@@ -65,7 +65,7 @@ export default function Layout({ children }) {
     <>
       <div className="h-full bg-white">
         <div className="h-full">
-          <div>
+          <div className="h-full w-full">
             <Transition.Root show={sidebarOpen} as={Fragment}>
               <Dialog
                 as="div"
@@ -325,8 +325,8 @@ export default function Layout({ children }) {
               </div>
             </div>
 
-            <div className="lg:pl-72">
-              <div className="sticky top-0 z-40 lg:mx-auto lg:max-w-7xl lg:px-8">
+            <div className="lg:pl-72 h-full w-full flex flex-col">
+              <div className="sticky top-0 z-40 w-full lg:mx-auto lg:max-w-7xl lg:px-8">
                 <div className="flex h-16 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-0 lg:shadow-none">
                   <button
                     type="button"
@@ -492,8 +492,8 @@ export default function Layout({ children }) {
                 </div>
               </div>
 
-              <main className="py-10 relative">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <main className="py-10 relative h-full">
+                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full h-full">
                   {children}
                 </div>
                 {/* <MusicPlayer /> */}

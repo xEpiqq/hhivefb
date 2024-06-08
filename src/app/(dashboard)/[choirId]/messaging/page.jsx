@@ -29,8 +29,6 @@ export default function ChatScreen() {
   const choir = useContext(ChoirContext);
   const choirId = choir.choirId;
   const user = useContext(UserContext);
-  console.log(user);
-  console.log(choir)
 
   const [messages, setMessages] = useState([]);
   const [messageGroups, setMessageGroups] = useState([]);
@@ -41,10 +39,10 @@ export default function ChatScreen() {
   const [reactionMessageId, setReactionMessageId] = useState("");
   const flatListRef = useRef(null);
   const bottom = useRef();
-  console.log(messages);
 
   useEffect(() => {
     const messagesRef = collection(firestore, "choirs", choirId, "messages");
+    // TODO: the limit should change when the user scrolls to the top of the chat
     const q = query(messagesRef, orderBy("createdAt", "desc"), limit(40));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -73,22 +71,29 @@ export default function ChatScreen() {
         // message.createdAt.toDate().getTime() - previousMessage.createdAt.toDate().getTime() >
         //   10 * 60 * 1000
       ) {
-        console.log("New group started!");
         newMessageGroups.push(currentGroup);
         currentGroup = [];
       }
-      console.log("Adding message to group: ", message.message);
       currentGroup.push(message);
       previousMessage = message;
     }
     newMessageGroups.push(currentGroup);
 
     setMessageGroups(newMessageGroups);
-    console.log(newMessageGroups);
 
     // Scroll to the div with the id of "bottom" when the messages change
     bottom.current.scrollIntoView({ behavior: "smooth" });
+    console.log("SCROLLING TO BOTTOM")
   }, [messages]);
+
+  useEffect(() => {
+    bottom.current.scrollIntoView({ behavior: "instant" });
+  }, [messageGroups]);
+
+
+  setTimeout(() => {
+    bottom.current.scrollIntoView({ behavior: "instant" });
+  }, 1000);
 
   const handleSendMessage = async () => {
     if (inputText.trim() !== "") {
@@ -136,7 +141,6 @@ export default function ChatScreen() {
 
   function handleNewReaction(messageId) {
     setEmojiKeyboard(true);
-    console.log(messageId);
     setReactionMessageId(messageId);
   }
 
@@ -241,7 +245,6 @@ export default function ChatScreen() {
   }
 
   const renderItem = ({ group, index }) => {
-    console.log(group);
 
     if (!group || group.length === 0) {
       return null;
@@ -273,7 +276,6 @@ export default function ChatScreen() {
       }
     };
 
-    console.log("I am here");
 
     return (
       <div className="flex flex-col items-start px-4">
@@ -311,7 +313,7 @@ export default function ChatScreen() {
               className="text-start w-full"
             >
               {group.map((itemText) => (
-                <p className="text-base text-gray-800 px-4 pb-2 break-words max-w-fit text-wrap overflow:hidden">
+                <p className="text-base text-gray-800 px-4 pb-2 break-words max-w-fit text-wrap overflow:hidden" key={itemText.id}>
                   {itemText.message}
 
                   {itemText.file && (
@@ -366,7 +368,7 @@ export default function ChatScreen() {
   };
 
   return (
-    <div className="h-full">
+    <div className="">
       <div
         onClick={() => setPictureZoom(undefined)}
         className={`fixed top-0 left-0 w-screen bg-black h-screen z-50 flex items-center justify-center transition-all duration-300
@@ -382,7 +384,7 @@ export default function ChatScreen() {
           className="rounded-xl max-w-[90%] max-h-[90%]"
         />
       </div>
-      <div className="max-h-screen overflow-y-scroll">
+      <div className="absolute left-0 right-0 top-0 bottom-32 overflow-y-scroll">
         <ol ref={flatListRef} className="h-full">
           {messageGroups?.map((item, index) => (
             <li key={item[0]?.id || index}>
@@ -392,101 +394,103 @@ export default function ChatScreen() {
           <div ref={bottom}></div>
         </ol>
       </div>
-      <div
-        className={`flex w-full h-14 justify-center rounded-xl border-[0.5px]`}
-      >
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSendMessage();
-          }}
-          className="w-full h-full"
+      <div className="absolute bottom-0 left-0 right-0 p-10">
+        <div
+          className={`flex w-full h-14 justify-center rounded-xl border-[0.5px]`}
         >
-          <input
-            className="w-full h-full px-2 bg-transparent focus:outline-none focus:ring-0 text-sm text-gray-800"
-            placeholder="Message #general"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-          />
-        </form>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSendMessage();
+            }}
+            className="w-full h-full"
+          >
+            <input
+              className="w-full h-full px-2 bg-transparent focus:outline-none focus:ring-0 text-sm text-gray-800"
+              placeholder="Message #general"
+              value={inputText}
+              onChange={(e) => setInputText(e.target.value)}
+            />
+          </form>
 
-        {!showIcons && (
-          <div className="flex flex-row items-center gap-2 mr-4">
-            <button onClick={handleTextToSpeech}>
-              <div className="w-7 h-7 flex items-center justify-center rounded-full">
-                <svg className="w-5 h-5 mr-2" viewBox="0 0 512 512">
-                  <g>
+          {!showIcons && (
+            <div className="flex flex-row items-center gap-2 mr-4">
+              <button onClick={handleTextToSpeech}>
+                <div className="w-7 h-7 flex items-center justify-center rounded-full">
+                  <svg className="w-5 h-5 mr-2" viewBox="0 0 512 512">
                     <g>
-                      <path
-                        d="m439.5,236c0-11.3-9.1-20.4-20.4-20.4s-20.4,9.1-20.4,20.4c0,70-64,126.9-142.7,126.9-78.7,0-142.7-56.9-142.7-126.9 0-11.3-9.1-20.4-20.4-20.4s-20.4,9.1-20.4,20.4c0,86.2 71.5,157.4 163.1,166.7v57.5h-23.6c-11.3,0-20.4,9.1-20.4,20.4 0,11.3 9.1,20.4 20.4,20.4h88c11.3,0 20.4-9.1 20.4-20.4 0-11.3-9.1-20.4-20.4-20.4h-23.6v-57.5c91.6-9.3 163.1-80.5 163.1-166.7z"
-                        fill="#585858"
-                      />
-                      <path
-                        d="m256,323.5c51,0 92.3-41.3 92.3-92.3v-127.9c0-51-41.3-92.3-92.3-92.3s-92.3,41.3-92.3,92.3v127.9c0,51 41.3,92.3 92.3,92.3zm-52.3-220.2c0-28.8 23.5-52.3 52.3-52.3s52.3,23.5 52.3,52.3v127.9c0,28.8-23.5,52.3-52.3,52.3s-52.3-23.5-52.3-52.3v-127.9z"
-                        fill="#585858"
-                      />
+                      <g>
+                        <path
+                          d="m439.5,236c0-11.3-9.1-20.4-20.4-20.4s-20.4,9.1-20.4,20.4c0,70-64,126.9-142.7,126.9-78.7,0-142.7-56.9-142.7-126.9 0-11.3-9.1-20.4-20.4-20.4s-20.4,9.1-20.4,20.4c0,86.2 71.5,157.4 163.1,166.7v57.5h-23.6c-11.3,0-20.4,9.1-20.4,20.4 0,11.3 9.1,20.4 20.4,20.4h88c11.3,0 20.4-9.1 20.4-20.4 0-11.3-9.1-20.4-20.4-20.4h-23.6v-57.5c91.6-9.3 163.1-80.5 163.1-166.7z"
+                          fill="#585858"
+                        />
+                        <path
+                          d="m256,323.5c51,0 92.3-41.3 92.3-92.3v-127.9c0-51-41.3-92.3-92.3-92.3s-92.3,41.3-92.3,92.3v127.9c0,51 41.3,92.3 92.3,92.3zm-52.3-220.2c0-28.8 23.5-52.3 52.3-52.3s52.3,23.5 52.3,52.3v127.9c0,28.8-23.5,52.3-52.3,52.3s-52.3-23.5-52.3-52.3v-127.9z"
+                          fill="#585858"
+                        />
+                      </g>
                     </g>
-                  </g>
-                </svg>
-              </div>
-            </button>
-            <input type="file" hidden id="file" onChange={handleFileUpload} />
-            <label htmlFor="file">
-              <div className="w-7 h-7 flex items-center justify-center rounded-full mouse-pointer">
-                <FaPaperclip className="w-5 h-5 text-[#585858]" />
-              </div>
-            </label>
+                  </svg>
+                </div>
+              </button>
+              <input type="file" hidden id="file" onChange={handleFileUpload} />
+              <label htmlFor="file">
+                <div className="w-7 h-7 flex items-center justify-center rounded-full mouse-pointer">
+                  <FaPaperclip className="w-5 h-5 text-[#585858]" />
+                </div>
+              </label>
+            </div>
+          )}
+        </div>
+
+        {showIcons && (
+          <div className="flex flex-row items-center w-full h-9 justify-between px-2">
+            <div className="flex flex-row gap-2">
+              <button onClick={handleFileUpload}>
+                <div className="w-8 h-8 flex items-center justify-center bg-[#eeeeee] rounded-full">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 45.402 45.402"
+                    fill="currentColor"
+                    className="h-4 w-4 text-[#585858]"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M41.267,18.557H26.832V4.134C26.832,1.851,24.99,0,22.707,0c-2.283,0-4.124,1.851-4.124,4.135v14.432H4.141c-2.283,0-4.139,1.851-4.138,4.135c-0.001,1.141,0.46,2.187,1.207,2.934c0.748,0.749,1.78,1.222,2.92,1.222h14.453V41.27c0,1.142,0.453,2.176,1.201,2.922c0.748,0.748,1.777,1.211,2.919,1.211c2.282,0,4.129-1.851,4.129-4.133V26.857h14.435c2.283,0,4.134-1.867,4.133-4.15C45.399,20.425,43.548,18.557,41.267,18.557z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </button>
+
+              <button>
+                <div className="w-8 h-8 flex justify-center items-center rounded-full">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24">
+                    <path
+                      d="M7.301 14.001C8.07344 15.7578 9.98814 17 11.9996 17C14.0025 17 15.9135 15.7546 16.6925 14.0055"
+                      stroke="#585858"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <circle cx="9" cy="9" r="1.5" fill="#585858" />{" "}
+                    {/* Left Eye */}
+                    <circle cx="15" cy="9" r="1.5" fill="#585858" />{" "}
+                    {/* Right Eye */}
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="11"
+                      stroke="#585858"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                </div>
+              </button>
+            </div>
           </div>
         )}
       </div>
-
-      {showIcons && (
-        <div className="flex flex-row items-center w-full h-9 justify-between px-2">
-          <div className="flex flex-row gap-2">
-            <button onClick={handleFileUpload}>
-              <div className="w-8 h-8 flex items-center justify-center bg-[#eeeeee] rounded-full">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 45.402 45.402"
-                  fill="currentColor"
-                  className="h-4 w-4 text-[#585858]"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M41.267,18.557H26.832V4.134C26.832,1.851,24.99,0,22.707,0c-2.283,0-4.124,1.851-4.124,4.135v14.432H4.141c-2.283,0-4.139,1.851-4.138,4.135c-0.001,1.141,0.46,2.187,1.207,2.934c0.748,0.749,1.78,1.222,2.92,1.222h14.453V41.27c0,1.142,0.453,2.176,1.201,2.922c0.748,0.748,1.777,1.211,2.919,1.211c2.282,0,4.129-1.851,4.129-4.133V26.857h14.435c2.283,0,4.134-1.867,4.133-4.15C45.399,20.425,43.548,18.557,41.267,18.557z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </button>
-
-            <button>
-              <div className="w-8 h-8 flex justify-center items-center rounded-full">
-                <svg className="w-5 h-5" viewBox="0 0 24 24">
-                  <path
-                    d="M7.301 14.001C8.07344 15.7578 9.98814 17 11.9996 17C14.0025 17 15.9135 15.7546 16.6925 14.0055"
-                    stroke="#585858"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <circle cx="9" cy="9" r="1.5" fill="#585858" />{" "}
-                  {/* Left Eye */}
-                  <circle cx="15" cy="9" r="1.5" fill="#585858" />{" "}
-                  {/* Right Eye */}
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="11"
-                    stroke="#585858"
-                    strokeWidth="2"
-                  />
-                </svg>
-              </div>
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
