@@ -17,9 +17,17 @@ function NavigationLabel({ label }) {
 
 function TileContent({ date, events }) {
   const hasEvent = events.some((event) => {
-    const eventDate = new Date(event.date).toISOString().split('T')[0];
-    const currentDate = date.toISOString().split('T')[0];
-    return eventDate === currentDate;
+    const eventDate = new Date(event.date);
+    const currentDate = new Date(date);
+
+    // Subtract one day from the event date
+    eventDate.setDate(eventDate.getDate() - 1);
+
+    return (
+      eventDate.getFullYear() === currentDate.getFullYear() &&
+      eventDate.getMonth() === currentDate.getMonth() &&
+      eventDate.getDate() === currentDate.getDate()
+    );
   });
 
   return (
@@ -28,7 +36,6 @@ function TileContent({ date, events }) {
     </div>
   );
 }
-
 
 
 function classNames(...classes) {
@@ -43,14 +50,28 @@ function getDaysInMonth(date) {
   const lastDay = new Date(year, month + 1, 0);
 
   for (let i = 1; i <= lastDay.getDate(); i++) {
+    const currentDate = new Date(year, month, i);
+    
+    // Convert currentDate to local date string
+    const localDateString = currentDate.toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit"
+    });
+
+    // Convert localDateString to ISO format (YYYY-MM-DD)
+    const [monthPart, dayPart, yearPart] = localDateString.split('/');
+    const isoDate = `${yearPart}-${monthPart}-${dayPart}`;
+
     days.push({
-      date: new Date(year, month, i).toISOString().split('T')[0],
+      date: isoDate,
       isCurrentMonth: true,
     });
   }
 
   return days;
 }
+
 
 export default function CalendarPage() {
   const choir = useContext(ChoirContext);
@@ -99,19 +120,21 @@ export default function CalendarPage() {
     const nextMonth = new Date(selectedDate ? selectedDate.getFullYear() : new Date().getFullYear(), selectedDate ? selectedDate.getMonth() + 1 : new Date().getMonth() + 1, 1);
     setSelectedDate(nextMonth);
   };
-
   const handleDayClick = (date) => {
     setSelectedDate(date);
   };
 
   const filteredEvents = selectedDate
-    ? sortedEvents.filter(event => {
-      const eventDate = new Date(event.date);
-      return (
-        eventDate.toDateString() === selectedDate.toDateString()
-      );
-    })
-    : sortedEvents;
+  ? sortedEvents.filter(event => {
+    const eventDate = new Date(event.date);
+    const selectedPreviousDay = new Date(selectedDate);
+    selectedPreviousDay.setDate(selectedDate.getDate() + 1);
+    return (
+      eventDate.toDateString() === selectedPreviousDay.toDateString()
+    );
+  })
+  : sortedEvents;
+
 
   const days = getDaysInMonth(selectedDate || new Date());
 
@@ -181,7 +204,7 @@ export default function CalendarPage() {
               >
                 <TileContent date={new Date(day.date)} events={choir.calendar} />
                 <time
-                  dateTime={day.date}
+                  dateTime={day.date + 1}
                   className={classNames(
                     'mx-auto flex h-7 w-7 items-center justify-center rounded-full',
                     selectedDate && day.date === selectedDate.toISOString().split('T')[0] && 'bg-indigo-600 text-white'
