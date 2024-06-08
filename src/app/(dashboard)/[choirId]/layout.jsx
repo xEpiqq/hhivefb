@@ -11,35 +11,28 @@ import { db } from "@/lib/firestoreAdapter";
 export default async function Layout({ children, params }) {
   const user = await getCurrentUser();
   const { choirId } = params;
-  console.log('the user id is: ' + user?.id);
+  console.log("the user id is: " + user?.id);
 
   if (!user) {
     redirect("/");
-    return <div>Redirecting...</div>;
   }
 
-  const choirDocRef = doc(db, "choirs", choirId);
-  const choirDoc = await getDoc(choirDocRef);
+  const memberRef = doc(db, "choirs", choirId, "members", user.id);
+  const memberDoc = await getDoc(memberRef);
 
-  if (!choirDoc.exists()) {
-    redirect("/not-found");
-    return <div>Choir not found</div>;
+  if (!memberDoc.exists()) {
+    return redirect("/not-found");
   }
 
-  const choirData = choirDoc.data();
-  const isAdmin = choirData.admins.includes(user.id);
-
-  if (!isAdmin) {
-    redirect("/not-authorized");
-    return <div>Not authorized</div>;
+  // TODO: Re-enable this when we have choir admins
+  if (memberDoc.data().role !== "Admin") {
+    return redirect("/not-found");
   }
 
   return (
     <UserProvider user={user}>
       <ChoirProvider choirId={choirId}>
-        <SideBarlayout>
-          {children}
-        </SideBarlayout>
+        <SideBarlayout>{children}</SideBarlayout>
       </ChoirProvider>
     </UserProvider>
   );
