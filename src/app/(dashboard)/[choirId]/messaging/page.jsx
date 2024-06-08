@@ -30,6 +30,7 @@ export default function ChatScreen() {
   const choirId = choir.choirId;
   const user = useContext(UserContext);
   console.log(user);
+  console.log(choir)
 
   const [messages, setMessages] = useState([]);
   const [messageGroups, setMessageGroups] = useState([]);
@@ -39,12 +40,12 @@ export default function ChatScreen() {
   const [pictureZoom, setPictureZoom] = useState();
   const [reactionMessageId, setReactionMessageId] = useState("");
   const flatListRef = useRef(null);
-  const bottom = useRef(null);
+  const bottom = useRef();
   console.log(messages);
 
   useEffect(() => {
     const messagesRef = collection(firestore, "choirs", choirId, "messages");
-    const q = query(messagesRef, orderBy("createdAt", "desc"));
+    const q = query(messagesRef, orderBy("createdAt", "desc"), limit(40));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const fetchedMessages = snapshot.docs.map((doc) => ({
@@ -58,9 +59,6 @@ export default function ChatScreen() {
   }, [choirId]);
 
   useEffect(() => {
-    // Scroll to the div with the id of "bottom" when the messages change
-    bottom.current.scrollIntoView({ behavior: "smooth" });
-
     // Organize messages into groups
     // All messages within 10 minutes of each other are in the same group
     // If a message is from a different user, it starts a new group
@@ -87,6 +85,9 @@ export default function ChatScreen() {
 
     setMessageGroups(newMessageGroups);
     console.log(newMessageGroups);
+
+    // Scroll to the div with the id of "bottom" when the messages change
+    bottom.current.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSendMessage = async () => {
@@ -381,14 +382,16 @@ export default function ChatScreen() {
           className="rounded-xl max-w-[90%] max-h-[90%]"
         />
       </div>
-      <ol ref={flatListRef} className="flex-1">
-        {messageGroups?.map((item, index) => (
-          <li key={item[0]?.id || index}>
-            {renderItem({ group: item, index })}
-          </li>
-        ))}
-      </ol>
-      <div ref={bottom}></div>
+      <div className="max-h-screen overflow-y-scroll">
+        <ol ref={flatListRef} className="h-full">
+          {messageGroups?.map((item, index) => (
+            <li key={item[0]?.id || index}>
+              {renderItem({ group: item, index })}
+            </li>
+          ))}
+          <div ref={bottom}></div>
+        </ol>
+      </div>
       <div
         className={`flex w-full h-14 justify-center rounded-xl border-[0.5px]`}
       >

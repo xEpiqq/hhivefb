@@ -35,27 +35,26 @@ export async function GET(request, { params }) {
 
   // get the user documents from the firestore
   // Create an array to store promises of fetching user documents
-  const memberIds = choirDoc.data().members;
-  const usersCollectionRef = collection(db, "users");
+  // const memberIds = choirDoc.data().members;
+  // const usersCollectionRef = collection(db, "users");
 
-  const userDocPromises = memberIds.map((memberId) => {
-    const userDocRef = doc(usersCollectionRef, memberId);
-    return getDoc(userDocRef);
-  });
-  // Wait for all user documents to be fetched
-  const userDocs = await Promise.all(userDocPromises);
+  // const userDocPromises = memberIds.map((memberId) => {
+  //   const userDocRef = doc(usersCollectionRef, memberId);
+  //   return getDoc(userDocRef);
+  // });
+  // // Wait for all user documents to be fetched
+  // const userDocs = await Promise.all(userDocPromises);
+  
   // Create an array of user data
-  const members = userDocs.map((doc) => {
-    console.log(doc.data());
-    const userData = doc.data();
-    return {
-      userId: doc.id,
-      ...userData,
-    };
-  });
+  const membersCollectionRef = collection(db, "choirs", choirId, "members");
+  const memberRefs = await getDocs(membersCollectionRef);
+  const membersData = memberRefs.docs.map((doc) => ({
+    memberId: doc.id,
+    ...doc.data(),
+  }));
 
   if (choirDoc.exists()) {
-    const choirData = { ...choirDoc.data(), songs: songsCollection, members, calendar: calendarCollection};
+    const choirData = { ...choirDoc.data(), songs: songsCollection, members: membersData || [], calendar: calendarCollection};
     return NextResponse.json({
       status: 200,
       message: "Choir found",

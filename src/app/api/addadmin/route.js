@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
-import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
 import { db } from "@/lib/firestoreAdapter";
 import { getCurrentUser } from "@/lib/session";
 
@@ -13,14 +21,23 @@ export async function POST(request) {
 
   if (userDocs.empty) {
     console.log(`No user found with email ${email}`);
-    return NextResponse.json({ status: 404, message: `No user found with email ${email}... create an account and come back to this page.`, action: "USER_NOT_FOUND" });
+    return NextResponse.json({
+      status: 404,
+      message: `No user found with email ${email}... create an account and come back to this page.`,
+      action: "USER_NOT_FOUND",
+    });
   }
 
   const user = await getCurrentUser();
 
   if (!user || user.email !== email) {
     console.log("User not signed in or email mismatch");
-    return NextResponse.json({ status: 403, message: "You must be signed in before we can add you... signin then come back to this page.", action: "SIGN_IN_REQUIRED" });
+    return NextResponse.json({
+      status: 403,
+      message:
+        "You must be signed in before we can add you... signin then come back to this page.",
+      action: "SIGN_IN_REQUIRED",
+    });
   }
 
   // Fetch choir document
@@ -44,19 +61,44 @@ export async function POST(request) {
 
   console.log("Admin code match!" + admincode + "=" + trueAdminCode);
 
-  let updated = false;
-
   // Iterate through all user documents
   for (const userDoc of userDocs.docs) {
     const uid = userDoc.id;
     console.log("Found UID:", uid);
 
-    // Check if the user is already an admin
-    if (!choirDoc.admins.includes(uid)) {
-      choirDoc.admins.push(uid);
-      updated = true;
+    const choirMembersCollection = collection(db, "choirs", choirId, "members");
+    const userChoirMemberQuery = query(
+      choirMembersCollection,
+      where("email", "==", email)
+    );
+
+    const querySnapshot = await getDocs(userChoirMemberQuery);
+
+    if (querySnapshot.empty) {
+      // Add user to choir members
+      console.log(`Adding user ${email} to choir members`);
+      await setDoc(doc(choirMembersCollection, uid), {
+        email,
+        name: userDoc.data().name,
+        role: "Member",
+      });
     } else {
-      console.log(`User ${email} is already an admin of the choir`);
+      console.log(`User ${email} is already a member of the choir`);
+      // Check if user is already an admin
+      const member = querySnapshot.docs[0];
+      if (member.data().role === "Admin") {
+        console.log(`User ${email} is already an admin of the choir`);
+        return NextResponse.json({
+          status: 403,
+          message: `User ${email} is already an admin of the choir`,
+        });
+      } else {
+        // Update user's role to admin
+        console.log(`Updating user ${email} to admin`);
+        await updateDoc(member.ref, {
+          role: "Admin",
+        });
+      }
     }
 
     // Update user's choir list if not already present
@@ -74,16 +116,14 @@ export async function POST(request) {
       });
       console.log(`User ${email} updated with new choir: ${choirId}`);
     } else {
-      console.log(`User ${email} already has the choir ${choirId} in their list`);
+      console.log(
+        `User ${email} already has the choir ${choirId} in their list`
+      );
     }
   }
 
-  if (updated) {
-    await updateDoc(choirDocRef, {
-      admins: choirDoc.admins,
-    });
-    console.log("New admins", choirDoc.admins);
-  }
-
-  return NextResponse.json({ status: 200, message: "Admin added successfully" });
+  return NextResponse.json({
+    status: 200,
+    message: "Admin added successfully",
+  });
 }
