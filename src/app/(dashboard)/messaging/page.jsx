@@ -24,6 +24,7 @@ import { useCollectionData } from "react-firebase-hooks/firestore";
 import { ChoirContext } from "../../../components/ChoirContext";
 import { UserContext } from "../../../components/UserContext";
 import { useContext } from "react";
+import Image from "next/image";
 
 export default function ChatScreen() {
   const choir = useContext(ChoirContext);
@@ -105,9 +106,6 @@ export default function ChatScreen() {
     }
   }, [messageGroups]);
 
-  setTimeout(() => {
-    if (viewAtBottom) bottom.current.scrollIntoView({ behavior: "instant" });
-  }, 1000);
 
   const handleSendMessage = async () => {
     if (inputText.trim() !== "") {
@@ -348,13 +346,15 @@ export default function ChatScreen() {
                   {itemText.message}
 
                   {itemText.file && (
-                    <img
+                    <Image
                       onClick={() => setPictureZoom(itemText.id)}
                       src={itemText.file?.url}
                       target="_blank"
-                      className="rounded-xl shadow-lg max-w-[300px] max-h-[300px] cursor-pointer"
+                      width={300}
+                      height={300}
+                      className="rounded-xl shadow-lg max-w-[300px] max-h-[300px] cursor-pointer object-cover"
                       rel="noopener noreferrer"
-                    ></img>
+                    ></Image>
                   )}
                 </p>
               ))}
@@ -410,9 +410,11 @@ export default function ChatScreen() {
         className={`fixed top-0 left-0 w-screen h-screen z-50 flex items-center justify-center transition-all duration-300
           ${pictureZoom ? "opacity-100" : "hidden"}`}
       >
-        <img
+        <Image
           src={messages.find((m) => m.id === pictureZoom)?.file.url}
-          className="rounded-xl max-w-[90%] max-h-[90%]"
+          width={1000}
+          height={1000}
+          className="rounded-xl max-w-[90%] max-h-[90%] object-scale-down"
         />
       </div>
       <div
