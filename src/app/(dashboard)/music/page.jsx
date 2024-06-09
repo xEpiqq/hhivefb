@@ -314,7 +314,7 @@ export default function MusicPage() {
   }, [choir]);
 
   const handleAddMusicClick = () => {
-    window.location.href = `/${choir.choirId}/music/stepone/`;
+    window.location.href = `/music/stepone/`;
   };
 
   return (
