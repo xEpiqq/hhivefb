@@ -8,7 +8,7 @@ import {
   MapPinIcon,
 } from "@heroicons/react/20/solid";
 import { Menu, Transition } from "@headlessui/react";
-import { ChoirContext } from "../ChoirContext";
+import { ChoirContext } from "../../../components/ChoirContext";
 import NewCalendarEventModal from "@/components/NewCalendarEventModal";
 
 function NavigationLabel({ label }) {

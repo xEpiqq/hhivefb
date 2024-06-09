@@ -15,13 +15,21 @@ export async function POST(request) {
       const choirDetails = await Promise.all(Object.entries(userChoirs).map(async ([choirId, choirName]) => {
         const choirDocRef = doc(db, "choirs", choirId);
         const choirDoc = await getDoc(choirDocRef);
+        console.log(userDoc.data().choirs);
+
+        // There is a sub collection in the choir document called members
+        // This sub collection contains the list of members in the choir
+        // Get the number of documents in the members sub collection
+        const membersCollection = collection(choirDocRef, "members");
+        const membersSnapshot = await getDocs(membersCollection);
+        const membersCount = membersSnapshot.size;
         
         if (choirDoc.exists()) {
           const choirData = choirDoc.data();
           return {
             id: choirId,
             name: choirName,
-            members: choirData.members.length,
+            members: membersCount,
             lastOpened: choirData.lastOpened?.[userId] || null
           };
         } else {

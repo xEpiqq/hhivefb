@@ -21,13 +21,14 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import { useCollectionData } from "react-firebase-hooks/firestore";
-import { ChoirContext } from "../ChoirContext";
-import { UserContext } from "../UserContext";
+import { ChoirContext } from "../../../components/ChoirContext";
+import { UserContext } from "../../../components/UserContext";
 import { useContext } from "react";
 
 export default function ChatScreen() {
   const choir = useContext(ChoirContext);
   const choirId = choir.choirId;
+  console.log(choir)
   const user = useContext(UserContext);
 
   const [messages, setMessages] = useState([]);
@@ -95,7 +96,7 @@ export default function ChatScreen() {
 
   const scrollToBottom = () => {
     console.log("SCROLLING TO BOTTOM");
-    bottom.current.scrollIntoView({ behavior: "smooth" });
+    if (bottom.current) bottom.current.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -126,14 +127,14 @@ export default function ChatScreen() {
   const handleMessageScroll = () => {
     if (flatListRef.current.scrollTop === 0) {
       setMessageLimit(messageLimit + 20);
-      console.log("Increase message limit")
+      console.log("Increase message limit");
     }
     if (
       flatListRef.current.scrollHeight - flatListRef.current.scrollTop ===
       flatListRef.current.clientHeight
     ) {
-    console.log(viewAtBottom);
-    setViewAtBottom(true);
+      console.log(viewAtBottom);
+      setViewAtBottom(true);
     } else {
       setViewAtBottom(false);
     }

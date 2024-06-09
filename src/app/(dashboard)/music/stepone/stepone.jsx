@@ -1,6 +1,6 @@
 'use client';
 import { useState, useContext } from 'react';
-import { ChoirContext } from '../../ChoirContext';
+import { ChoirContext } from '../../../../components/ChoirContext';
 import { HomeIcon } from '@heroicons/react/20/solid';
 
 const pages = [

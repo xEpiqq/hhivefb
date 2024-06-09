@@ -1,4 +1,4 @@
-import { ChoirContext } from "../../app/(dashboard)/[choirId]/ChoirContext";
+import { ChoirContext } from "@/components/ChoirContext";
 import { useContext, useState, useEffect } from "react";
 
 export default function MemberCard({ member, key }) {
