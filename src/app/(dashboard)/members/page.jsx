@@ -1,6 +1,6 @@
 "use client";
 import MemberCard from "@/components/MemberCard";
-import { ChoirContext } from "../ChoirContext";
+import { ChoirContext } from "../../../components/ChoirContext";
 import { useState, useContext, useEffect } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";

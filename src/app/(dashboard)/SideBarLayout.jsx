@@ -6,6 +6,7 @@ import { useContext, useEffect } from "react";
 import { redirect } from "next/navigation";
 import { Fragment, useState } from "react";
 import { Dialog, Menu, Transition } from "@headlessui/react";
+import  { StateContext } from "@/components/StateContext";
 import Link from 'next/link'
 import {
   Bars3Icon,
@@ -24,8 +25,8 @@ import {
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
 
-import { UserContext } from "./UserContext";
-import { ChoirContext } from "./ChoirContext";
+import { UserContext } from "@/components/UserContext";
+import { ChoirContext } from "@/components/ChoirContext";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
@@ -44,6 +45,7 @@ function classNames(...classes) {
 export default function Layout({ children }) {
   const user = useContext(UserContext);
   const choir = useContext(ChoirContext);
+  const state = useContext(StateContext);
   const [choirs, setChoirs] = useState([]);
 
   const pathname = usePathname();
@@ -136,8 +138,8 @@ export default function Layout({ children }) {
                               <ul role="list" className="-mx-2 space-y-1">
                                 {navigation.map((item) => (
                                   <li key={item.name}>
-                                    <a
-                                      href={"/" + choir.choirId + item.href}
+                                    <Link
+                                      href={item.href}
                                       className={classNames(
                                         item.href === pathname
                                           ? "bg-gray-50 text-indigo-600"
@@ -155,7 +157,7 @@ export default function Layout({ children }) {
                                         aria-hidden="true"
                                       />
                                       {item.name}
-                                    </a>
+                                    </Link>
                                   </li>
                                 ))}
                               </ul>
@@ -170,8 +172,8 @@ export default function Layout({ children }) {
                                 ) : (
                                   choirs.map(([id, name]) => (
                                     <li key={id}>
-                                      <Link
-                                        href={`/${id}${pathname.replace(/^\/[^\/]+/, '')}`}
+                                      <button
+                                        onClick={() => state.setChoirId(id)}
                                         className={classNames(
                                           choir.choirId === id
                                             ? "border-dotted border-2 border-gray-300 bg-gray-50 text-indigo-600"
@@ -190,7 +192,7 @@ export default function Layout({ children }) {
                                           {name.charAt(0)} {/* Assuming initial is the first character of the name */}
                                         </span>
                                         <span className="truncate">{name}</span>
-                                      </Link>
+                                      </button>
                                     </li>
                                   ))
                                 )}
@@ -242,8 +244,8 @@ export default function Layout({ children }) {
                       <ul role="list" className="-mx-2 space-y-1">
                       {navigation.map((item) => (
                         <li key={item.name}>
-                        <a
-                          href={"/" + choir.choirId + item.href}
+                        <Link
+                          href={item.href}
                           className={classNames(
                             pathname.includes(item.href)
                               ? "border-dotted border-2 border-gray-300 bg-gray-50 text-indigo-600"
@@ -261,7 +263,7 @@ export default function Layout({ children }) {
                             aria-hidden="true"
                           />
                           {item.name}
-                        </a>
+                        </Link>
                       </li>
                   ))}
                       </ul>
@@ -280,13 +282,14 @@ export default function Layout({ children }) {
                         ) : (
                           choirs.map(([id, name]) => (
                             <li key={id}>
-                              <Link
+                              <button
+                                onClick={() => state.setChoirId(id)}
                                 href={`/${id}${pathname.replace(/^\/[^\/]+/, '')}`}
                                 className={classNames(
                                   choir.choirId === id
                                     ? "border-dotted border-2 border-gray-300 bg-gray-50 text-indigo-600"
                                     : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50",
-                                  "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                                  "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full"
                                 )}
                               >
                                 <span
@@ -300,7 +303,7 @@ export default function Layout({ children }) {
                                   {name.charAt(0)} {/* Assuming initial is the first character of the name */}
                                 </span>
                                 <span className="truncate">{name}</span>
-                              </Link>
+                              </button>
                             </li>
                           ))
                         )}

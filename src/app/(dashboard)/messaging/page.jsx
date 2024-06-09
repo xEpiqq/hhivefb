@@ -21,29 +21,36 @@ import {
   arrayUnion,
 } from "firebase/firestore";
 import { useCollectionData } from "react-firebase-hooks/firestore";
-import { ChoirContext } from "../ChoirContext";
-import { UserContext } from "../UserContext";
+import { ChoirContext } from "../../../components/ChoirContext";
+import { UserContext } from "../../../components/UserContext";
 import { useContext } from "react";
 
 export default function ChatScreen() {
   const choir = useContext(ChoirContext);
   const choirId = choir.choirId;
+  console.log(choir)
   const user = useContext(UserContext);
 
   const [messages, setMessages] = useState([]);
+  const [messageLimit, setMessageLimit] = useState(40);
   const [messageGroups, setMessageGroups] = useState([]);
+  const [viewAtBottom, setViewAtBottom] = useState(true);
   const [inputText, setInputText] = useState("");
   const [showIcons, setShowIcons] = useState(false);
   const [emojiKeyboard, setEmojiKeyboard] = useState(false);
   const [pictureZoom, setPictureZoom] = useState();
   const [reactionMessageId, setReactionMessageId] = useState("");
-  const flatListRef = useRef(null);
   const bottom = useRef();
+  const flatListRef = useRef();
 
   useEffect(() => {
     const messagesRef = collection(firestore, "choirs", choirId, "messages");
     // TODO: the limit should change when the user scrolls to the top of the chat
-    const q = query(messagesRef, orderBy("createdAt", "desc"), limit(40));
+    const q = query(
+      messagesRef,
+      orderBy("createdAt", "desc"),
+      limit(messageLimit)
+    );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const fetchedMessages = snapshot.docs.map((doc) => ({
@@ -54,7 +61,7 @@ export default function ChatScreen() {
     });
 
     return () => unsubscribe();
-  }, [choirId]);
+  }, [choirId, messageLimit]);
 
   useEffect(() => {
     // Organize messages into groups
@@ -82,17 +89,24 @@ export default function ChatScreen() {
     setMessageGroups(newMessageGroups);
 
     // Scroll to the div with the id of "bottom" when the messages change
-    bottom.current.scrollIntoView({ behavior: "smooth" });
-    console.log("SCROLLING TO BOTTOM")
+    if (viewAtBottom) {
+      scrollToBottom();
+    }
   }, [messages]);
 
+  const scrollToBottom = () => {
+    console.log("SCROLLING TO BOTTOM");
+    if (bottom.current) bottom.current.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
-    bottom.current.scrollIntoView({ behavior: "instant" });
+    if (viewAtBottom) {
+      scrollToBottom();
+    }
   }, [messageGroups]);
 
-
   setTimeout(() => {
-    bottom.current.scrollIntoView({ behavior: "instant" });
+    if (viewAtBottom) bottom.current.scrollIntoView({ behavior: "instant" });
   }, 1000);
 
   const handleSendMessage = async () => {
@@ -107,6 +121,22 @@ export default function ChatScreen() {
         },
       });
       setInputText("");
+    }
+  };
+
+  const handleMessageScroll = () => {
+    if (flatListRef.current.scrollTop === 0) {
+      setMessageLimit(messageLimit + 20);
+      console.log("Increase message limit");
+    }
+    if (
+      flatListRef.current.scrollHeight - flatListRef.current.scrollTop ===
+      flatListRef.current.clientHeight
+    ) {
+      console.log(viewAtBottom);
+      setViewAtBottom(true);
+    } else {
+      setViewAtBottom(false);
     }
   };
 
@@ -245,7 +275,6 @@ export default function ChatScreen() {
   }
 
   const renderItem = ({ group, index }) => {
-
     if (!group || group.length === 0) {
       return null;
     }
@@ -275,7 +304,6 @@ export default function ChatScreen() {
         handleEmojiReaction({ emoji }, messageId);
       }
     };
-
 
     return (
       <div className="flex flex-col items-start px-4">
@@ -313,7 +341,10 @@ export default function ChatScreen() {
               className="text-start w-full"
             >
               {group.map((itemText) => (
-                <p className="text-base text-gray-800 px-4 pb-2 break-words max-w-fit text-wrap overflow:hidden" key={itemText.id}>
+                <p
+                  className="text-base text-gray-800 px-4 pb-2 break-words max-w-fit text-wrap overflow:hidden"
+                  key={itemText.id}
+                >
                   {itemText.message}
 
                   {itemText.file && (
@@ -384,8 +415,12 @@ export default function ChatScreen() {
           className="rounded-xl max-w-[90%] max-h-[90%]"
         />
       </div>
-      <div className="absolute left-0 right-0 top-0 bottom-32 overflow-y-scroll">
-        <ol ref={flatListRef} className="h-full">
+      <div
+        className="absolute left-0 right-0 top-0 bottom-32 overflow-y-scroll"
+        onScroll={handleMessageScroll}
+        ref={flatListRef}
+      >
+        <ol className="h-full">
           {messageGroups?.map((item, index) => (
             <li key={item[0]?.id || index}>
               {renderItem({ group: item, index })}

@@ -1,14 +1,16 @@
 "use client";
 
 import { useContext, useEffect, useState } from "react";
-import { ChoirContext } from "../../ChoirContext";
+import { ChoirContext } from "@/components/ChoirContext";
+import { StateContext } from "@/components/StateContext";
 import { MusicControllerContext } from "@/components/MusicControllerProvider";
 import AddFileModal from "@/components/AddFileModal";
 
 export default function SongPage({ params }) {
-  const { songId } = params;
+  const { songId } = useContext(StateContext);
   const [addFileModalOpen, setAddFileModalOpen] = useState(true);
   const choir = useContext(ChoirContext);
+
 
   const musicController = useContext(MusicControllerContext);
 

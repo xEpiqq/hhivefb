@@ -1,4 +1,4 @@
-import { ChoirContext } from "../../app/(dashboard)/[choirId]/ChoirContext";
+import { ChoirContext } from "@/components/ChoirContext";
 import { useContext, useState, useEffect } from "react";
 
 export default function MemberCard({ member, key }) {
@@ -28,7 +28,7 @@ export default function MemberCard({ member, key }) {
                 : "bg-green-50 text-green-700 ring-green-600/20"
             }`}
           >
-            {choir.admins.includes(member.userId) ? "Admin" : "Member"}
+            {member.role}
           </span>
         </span>
       </button>
