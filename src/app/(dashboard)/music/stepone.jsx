@@ -1,7 +1,9 @@
 'use client';
 import { useState, useContext } from 'react';
-import { ChoirContext } from '../../../../components/ChoirContext';
+import { ChoirContext } from '../../../components/ChoirContext';
 import { HomeIcon } from '@heroicons/react/20/solid';
+import { UserContext } from '../../../components/UserContext'
+
 
 const pages = [
   { name: 'Music', href: '#', current: false },
@@ -18,7 +20,8 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(' ');
 }
 
-export default function AddSongPage() {
+export default function AddSongPage( { setNewSongModal } ) {
+  const user = useContext(UserContext);
   const choir = useContext(ChoirContext);
   const [currentStep, setCurrentStep] = useState(0);
   const [newSongTitle, setNewSongTitle] = useState('');
@@ -71,6 +74,7 @@ export default function AddSongPage() {
   }
 
   return (
+  <div className="h-screen w-screen fixed top-0 left-0 z-50 bg-white flex justify-center items-center">
     <div className="w-full h-full flex items-center flex-col">
       <nav className="flex border-b border-gray-200 bg-white w-full" aria-label="Breadcrumb">
         <ol role="list" className="mx-auto flex w-full max-w-screen-xl space-x-4 px-4 sm:px-6 lg:px-8">
@@ -118,12 +122,12 @@ export default function AddSongPage() {
 
             <div className='mr-14'/>
 
-            <div className='w-8 h-8 text-indigo-400 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-400 hover:text-white transition duration-75 -mr-14' onClick={() => window.location.href = `/${choir.choirId}/music/`}>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </div>
+            <div className='w-8 h-8 text-indigo-400 rounded-full flex items-center justify-center cursor-pointer hover:bg-indigo-400 hover:text-white transition duration-75 -mr-14' onClick={() => setNewSongModal(false)}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </div>
 
           </header>
           <main>
@@ -243,6 +247,7 @@ export default function AddSongPage() {
           </main>
         </div>
       </div>
+    </div>
     </div>
   );
 }

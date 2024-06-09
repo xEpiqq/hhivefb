@@ -16,6 +16,7 @@ import Skeleton from "react-loading-skeleton";
 import { StateContext } from "@/components/StateContext";
 import { useRouter } from "next/navigation";
 import "react-loading-skeleton/dist/skeleton.css";
+import AddSongPage from "./stepone";
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -299,6 +300,7 @@ export default function MusicPage() {
   const choir = useContext(ChoirContext);
   const [music, setMusic] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [newSongModal, setNewSongModal] = useState(false);
   const state = useContext(StateContext);
   const router = useRouter();
 
@@ -313,13 +315,13 @@ export default function MusicPage() {
     setLoading(false);
   }, [choir]);
 
-  const handleAddMusicClick = () => {
-    window.location.href = `/music/stepone/`;
-  };
 
   return (
     <>
       <div className="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
+        <div>
+          {newSongModal && <AddSongPage newSongModal={newSongModal} setNewSongModal={setNewSongModal} onClose={() => setNewSongModal(false)} />}
+        </div>
         <h3 className="text-base font-semibold leading-6 text-gray-900">
           Music Hive
         </h3>
@@ -327,7 +329,7 @@ export default function MusicPage() {
           <button
             type="button"
             className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-            onClick={handleAddMusicClick}
+            onClick={() => setNewSongModal(true)}
           >
             Create New Song
           </button>
@@ -367,7 +369,7 @@ export default function MusicPage() {
               <button
                 type="button"
                 className="relative block w-full rounded-lg border-2 border-dashed border-gray-300 p-12 text-center hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                onClick={handleAddMusicClick}
+                onClick={() => setNewSongModal(true)}
               >
                 <svg
                   className="mx-auto h-12 w-12 text-gray-400"
