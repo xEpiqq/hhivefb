@@ -201,16 +201,26 @@ export default function Layout({ children }) {
 
                             </li>
                             <li className="mt-auto">
-                              <a
+                              <Link
                                 href="/settings"
-                                className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
+                                className={classNames(
+                                  pathname === "/settings"
+                                    ? "border-dotted border-2 border-gray-300 bg-gray-50 text-indigo-600"
+                                    : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50",
+                                  "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+                                )}
                               >
                                 <Cog6ToothIcon
-                                  className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-indigo-600"
+                                  className={classNames(
+                                    pathname === "/settings"
+                                      ? "text-indigo-600"
+                                      : "text-gray-400 group-hover:text-indigo-600",
+                                    "h-6 w-6 shrink-0"
+                                  )}
                                   aria-hidden="true"
                                 />
                                 Settings
-                              </a>
+                              </Link>
                             </li>
                           </ul>
                         </nav>
@@ -312,17 +322,28 @@ export default function Layout({ children }) {
 
                     </li>
                     <li className="mt-auto">
-                      <a
+                      <Link
                         href="/settings"
-                        className="group -mx-2 flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 text-gray-700 hover:bg-gray-50 hover:text-indigo-600"
+                        className={classNames(
+                          pathname === "/settings"
+                            ? "border-dotted border-2 border-gray-300 bg-gray-50 text-indigo-600"
+                            : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50",
+                          "group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6"
+                        )}
                       >
                         <Cog6ToothIcon
-                          className="h-6 w-6 shrink-0 text-gray-400 group-hover:text-indigo-600"
+                          className={classNames(
+                            pathname === "/settings"
+                              ? "text-indigo-600"
+                              : "text-gray-400 group-hover:text-indigo-600",
+                            "h-6 w-6 shrink-0"
+                          )}
                           aria-hidden="true"
                         />
                         Settings
-                      </a>
+                      </Link>
                     </li>
+
                   </ul>
                 </nav>
               </div>
