@@ -67,7 +67,6 @@ export default function Example() {
   useEffect(() => {
     if (choir.members) {
       setIsLoading(false);
-      console.log(choir.admins);
     }
   }, [choir.members]);
 

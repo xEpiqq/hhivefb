@@ -12,10 +12,6 @@ export default function ChoirProvider({ children }) {
   const choir = useChoir(choirId);
   console.log("the choir id is: " + choirId);
 
-  useEffect(() => {
-    choir.reloadChoir();
-  }, [choirId]);
-
   return (
     <ChoirContext.Provider value={choir}>{children}</ChoirContext.Provider>
   );
