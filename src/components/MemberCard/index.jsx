@@ -23,7 +23,7 @@ export default function MemberCard({ member, key }) {
         <span className="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center">
           <span
             className={`inline-flex items-center rounded-full px-2 py-1 mr-6 text-xs font-medium ring-1 ring-inset ${
-              choir.admins.includes(member.userId)
+              member.role === "Member"
                 ? "bg-red-50 text-red-700 ring-red-600/20"
                 : "bg-green-50 text-green-700 ring-green-600/20"
             }`}
