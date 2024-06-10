@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { Fragment, useState } from "react";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import  { StateContext } from "@/components/StateContext";
+import MusicPlayer from "@/components/MusicPlayer";
 import Link from 'next/link'
 import {
   Bars3Icon,
@@ -522,7 +523,7 @@ export default function Layout({ children }) {
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full h-full">
                   {children}
                 </div>
-                {/* <MusicPlayer /> */}
+                <MusicPlayer />
               </main>
             </div>
           </div>

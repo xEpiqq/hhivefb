@@ -4,7 +4,7 @@ import { useState } from "react";
 
 import useMusicController from "@/lib/musicController";
 
-export const MusicControllerContext = createContext({ plzwork: "false" });
+export const MusicControllerContext = createContext();
 
 export default function MusicControllerProvider({ children }) {
   const musicController = useMusicController();

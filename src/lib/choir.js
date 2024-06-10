@@ -15,6 +15,7 @@ import {
   arrayUnion,
   deleteDoc,
 } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 export default function useChoir(choirId) {
   const [songs, setSongs] = useState([]);
@@ -87,17 +88,18 @@ export default function useChoir(choirId) {
   const addFile = async (songId, formData) => {
     const songRef = doc(firestore, "choirs", choirId, "songs", songId);
     // Upload the file to storage
-    const storageRef = storage.ref();
-    const fileRef = storageRef.child(
+    const fileRef = ref(
+      storage,
       `${choirId}/songs/${songId}/${formData.get("file").name}`
     );
-    await fileRef.put(formData.get("file"));
+    await uploadBytes(fileRef, formData.get("file"));
+    const downloadURL = await getDownloadURL(fileRef);
 
     // Update the song document with the file
     await updateDoc(songRef, {
       files: arrayUnion({
         name: formData.get("fileName"),
-        url: fileRef.fullPath,
+        url: downloadURL,
       }),
     });
 

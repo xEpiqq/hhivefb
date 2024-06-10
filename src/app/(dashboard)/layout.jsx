@@ -8,6 +8,7 @@ import ChoirProvider from "../../components/ChoirContext";
 import StateContextProvider from "../../components/StateContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firestoreAdapter";
+import MusicControllerProvider from "@/components/MusicControllerProvider";
 
 export default async function Layout({ children, params }) {
   const user = await getCurrentUser();
@@ -31,11 +32,13 @@ export default async function Layout({ children, params }) {
 
   return (
     <StateContextProvider>
-      <UserProvider user={user}>
-        <ChoirProvider>
-          <SideBarlayout>{children}</SideBarlayout>
-        </ChoirProvider>
-      </UserProvider>
+      <MusicControllerProvider>
+        <UserProvider user={user}>
+          <ChoirProvider>
+            <SideBarlayout>{children}</SideBarlayout>
+          </ChoirProvider>
+        </UserProvider>
+      </MusicControllerProvider>
     </StateContextProvider>
   );
 }
