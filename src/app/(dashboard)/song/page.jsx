@@ -11,12 +11,11 @@ export default function SongPage({ params }) {
   const [addFileModalOpen, setAddFileModalOpen] = useState(true);
   const choir = useContext(ChoirContext);
 
-
   const musicController = useContext(MusicControllerContext);
 
   // the correct song is the one with the id
   const song = choir.songs.find((song) => song.songId === songId);
-  console.log(choir);
+  console.log(song);
 
   return (
     <div>
@@ -37,9 +36,7 @@ export default function SongPage({ params }) {
             {file.name.split(".").pop() === "pdf" ? (
               <embed
                 src={
-                  "https://firebasestorage.googleapis.com/v0/b/harmonyhive-b4705.appspot.com/o/" +
-                  encodeURIComponent(file.url) +
-                  "?alt=media"
+                  file.url
                 }
                 width="100%"
                 height="500"
@@ -47,13 +44,12 @@ export default function SongPage({ params }) {
             ) : (
               <button
                 className="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                onClick={() =>
+                onClick={() => {
                   musicController.setSongUrl(
-                    "https://firebasestorage.googleapis.com/v0/b/harmonyhive-b4705.appspot.com/o/" +
-                      encodeURIComponent(file.url) +
-                      "?alt=media"
-                  )
-                }
+                    file.url
+                  );
+                  musicController.setSongName("TEST SONG");
+                }}
               >
                 Play Audio
               </button>
