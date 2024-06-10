@@ -520,7 +520,7 @@ export default function Layout({ children }) {
               </div>
 
               <main className="py-10 relative h-full">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full h-full">
+                <div className="mx-auto relative max-w-7xl px-4 sm:px-6 lg:px-8 w-full h-full">
                   {children}
                 </div>
                 <MusicPlayer />

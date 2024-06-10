@@ -18,7 +18,7 @@ export default function MusicPlayer() {
 
   if (!songUrl) return null;
   return (
-    <div className="mx-2.5 px-4 py-2 rounded-lg left-0 right-0 absolute bottom-3 shadow-2xl bg-slate-100">
+    <div className="mx-2.5 mt-3 px-4 py-2 rounded-lg left-0 right-0 absolute bottom-3 shadow-2xl bg-slate-100">
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <audio
