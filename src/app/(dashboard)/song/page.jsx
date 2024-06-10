@@ -48,7 +48,7 @@ export default function SongPage({ params }) {
                   musicController.setSongUrl(
                     file.url
                   );
-                  musicController.setSongName("TEST SONG");
+                  musicController.setSongName(file.name);
                 }}
               >
                 Play Audio

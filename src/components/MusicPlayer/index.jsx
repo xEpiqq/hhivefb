@@ -12,18 +12,29 @@ import {
 import { MusicControllerContext } from "@/components/MusicControllerProvider";
 
 export default function MusicPlayer() {
-  const { songUrl, setSongUrl, paused, setPaused } = useContext(
+  const { songUrl, setSongUrl, paused, setPaused, songName } = useContext(
     MusicControllerContext
   );
+
+  if (!songUrl) return null;
   return (
-    <div className="mx-2.5 p-4 bg-slate-200 rounded-lg sticky bottom-3">
-      <div className="flex items-start">
-        <audio
-          controls
-          src={songUrl}
-          onPlay={() => setPaused(false)}
-          onPause={() => setPaused(true)}
-        />
+    <div className="mx-2.5 p-4 rounded-lg sticky bottom-3 shadow-2xl bg-slate-100">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center">
+          <audio
+            controls
+            src={songUrl}
+            onPlay={() => setPaused(false)}
+            onPause={() => setPaused(true)}
+          />
+          <p className="ml-2.5 font-medium">{songName}</p>
+        </div>
+        <button
+          className="ml-2.5 p-2.5 bg-slate-300 rounded-full"
+          onClick={() => setSongUrl(null)}
+        >
+          <XMarkIcon className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );
