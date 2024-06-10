@@ -29,6 +29,8 @@ export default function useChoir(choirId) {
   useEffect(() => {
     let unsubscribeList = [];
 
+    if (!choirId) return;
+
     const choirRef = doc(firestore, "choirs", choirId);
     const unsubscribe = onSnapshot(choirRef, (doc) => {
       if (doc.exists()) {
