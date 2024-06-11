@@ -63,8 +63,7 @@ export default function AddSongPage( { setNewSongModal } ) {
     }
     return true;
   };
-  
-  
+
   async function handleFormSubmit() {
     setIsSaving(true);
     const newSong = await choir.addSong(newSongTitle);
@@ -87,14 +86,14 @@ export default function AddSongPage( { setNewSongModal } ) {
     setSheetOrderModal(true)
   }
 
-
   return (
     <>
 
     <div className="h-screen w-screen fixed top-0 left-0 z-50 bg-white flex justify-center items-center">
     {sheetOrderModal && (
       <SheetOrderModal
-          newSongSheetMusicImages={newSongSheetMusicImages}
+          choirId={choir.choirId}
+          songId={state.songId}
           setSheetOrderModal={setSheetOrderModal}
         />
       )}
