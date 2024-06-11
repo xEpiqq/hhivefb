@@ -46,7 +46,6 @@ export default function ChatScreen() {
 
   useEffect(() => {
     const messagesRef = collection(firestore, "choirs", choirId, "messages");
-    // TODO: the limit should change when the user scrolls to the top of the chat
     const q = query(
       messagesRef,
       orderBy("createdAt", "desc"),
