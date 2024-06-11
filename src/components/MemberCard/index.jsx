@@ -1,11 +1,12 @@
 import { ChoirContext } from "@/components/ChoirContext";
 import { useContext, useState, useEffect } from "react";
 
-export default function MemberCard({ member, key }) {
+export default function MemberCard({ member, key, onClick }) {
   const choir = useContext(ChoirContext);
   return (
     <li key={key}>
       <button
+        onClick={onClick}
         type="button"
         className="group flex w-full items-center justify-between space-x-3 rounded-full border border-gray-300 p-2 text-left shadow-sm hover:bg-gray-50"
       >
