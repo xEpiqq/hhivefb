@@ -2,18 +2,16 @@
 
 import { Disclosure } from "@headlessui/react";
 import { usePathname } from "next/navigation";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, Fragment, useState } from "react";
 import { redirect } from "next/navigation";
-import { Fragment, useState } from "react";
 import { Dialog, Menu, Transition } from "@headlessui/react";
-import  { StateContext } from "@/components/StateContext";
+import { StateContext } from "@/components/StateContext";
 import MusicPlayer from "@/components/MusicPlayer";
-import Link from 'next/link'
+import Link from 'next/link';
 import {
   Bars3Icon,
   BellIcon,
   CalendarIcon,
-  ChartPieIcon,
   Cog6ToothIcon,
   DocumentDuplicateIcon,
   FolderIcon,
@@ -23,11 +21,7 @@ import {
   UsersIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
-import {
-  ChevronDownIcon,
-  MagnifyingGlassIcon,
-} from "@heroicons/react/20/solid";
-
+import { ChevronDownIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import { UserContext } from "@/components/UserContext";
 import { ChoirContext } from "@/components/ChoirContext";
 import Skeleton from 'react-loading-skeleton';
@@ -59,7 +53,7 @@ export default function Layout({ children }) {
       redirect("/login");
     }
   }, [user]);
-  
+
   useEffect(() => {
     if (user && user.choirs) {
       setChoirs(Object.entries(user.choirs));
@@ -200,8 +194,6 @@ export default function Layout({ children }) {
                                   ))
                                 )}
                               </ul>
-
-
                             </li>
                             <li className="mt-auto">
                               <Link
@@ -250,35 +242,34 @@ export default function Layout({ children }) {
                   {choir.name ? choir.name : <Skeleton width={100} height={30} />}
                 </h1>
 
-
                 <nav className="flex flex-1 flex-col">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">
                     <li>
                       <ul role="list" className="-mx-2 space-y-1">
-                      {navigation.map((item) => (
-                        <li key={item.name}>
-                        <Link
-                          href={item.href}
-                          className={classNames(
-                            pathname.includes(item.href)
-                              ? "border-dotted border-2 border-gray-300 bg-gray-50 text-indigo-600"
-                              : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                          )}
-                        >
-                          <item.icon
-                            className={classNames(
-                              pathname.includes(item.href)
-                                ? "text-indigo-600"
-                                : "text-gray-400 group-hover:text-indigo-600",
-                              "h-6 w-6 shrink-0"
-                            )}
-                            aria-hidden="true"
-                          />
-                          {item.name}
-                        </Link>
-                      </li>
-                  ))}
+                        {navigation.map((item) => (
+                          <li key={item.name}>
+                            <Link
+                              href={item.href}
+                              className={classNames(
+                                pathname.includes(item.href)
+                                  ? "border-dotted border-2 border-gray-300 bg-gray-50 text-indigo-600"
+                                  : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50",
+                                "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                              )}
+                            >
+                              <item.icon
+                                className={classNames(
+                                  pathname.includes(item.href)
+                                    ? "text-indigo-600"
+                                    : "text-gray-400 group-hover:text-indigo-600",
+                                  "h-6 w-6 shrink-0"
+                                )}
+                                aria-hidden="true"
+                              />
+                              {item.name}
+                            </Link>
+                          </li>
+                        ))}
                       </ul>
                     </li>
                     <li>
@@ -288,9 +279,9 @@ export default function Layout({ children }) {
                       <ul role="list" className="-mx-2 mt-2 space-y-1">
                         {choirs.length === 0 ? (
                           <div className="flex flex-col gap-2">
-                          <Skeleton width={250} height={30} />
-                          <Skeleton width={250} height={30} />
-                          <Skeleton width={250} height={30} />
+                            <Skeleton width={250} height={30} />
+                            <Skeleton width={250} height={30} />
+                            <Skeleton width={250} height={30} />
                           </div>
                         ) : (
                           choirs.map(([id, name]) => (
@@ -321,8 +312,6 @@ export default function Layout({ children }) {
                           ))
                         )}
                       </ul>
-
-
                     </li>
                     <li className="mt-auto">
                       <Link
@@ -346,7 +335,6 @@ export default function Layout({ children }) {
                         Settings
                       </Link>
                     </li>
-
                   </ul>
                 </nav>
               </div>
@@ -371,27 +359,29 @@ export default function Layout({ children }) {
                   />
 
                   <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-                    <form
-                      className="relative flex flex-1"
-                      action="#"
-                      method="GET"
-                    >
-                      <label htmlFor="search-field" className="sr-only">
-                        Search
-                      </label>
-                      <MagnifyingGlassIcon
-                        className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400"
-                        aria-hidden="true"
-                      />
+                    {!pathname.includes("/song") && (
+                      <form
+                        className="relative flex flex-1"
+                        action="#"
+                        method="GET"
+                      >
+                        <label htmlFor="search-field" className="sr-only">
+                          Search
+                        </label>
+                        <MagnifyingGlassIcon
+                          className="pointer-events-none absolute inset-y-0 left-0 h-full w-5 text-gray-400"
+                          aria-hidden="true"
+                        />
 
-                      <input
-                        id="search-field"
-                        className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 focus:outline-none sm:text-sm"
-                        placeholder="Search..."
-                        type="search"
-                        name="search"
-                      />
-                    </form>
+                        <input
+                          id="search-field"
+                          className="block h-full w-full border-0 py-0 pl-8 pr-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 focus:outline-none sm:text-sm"
+                          placeholder="Search..."
+                          type="search"
+                          name="search"
+                        />
+                      </form>
+                    )}
                     <div className="flex items-center gap-x-4 lg:gap-x-6">
                       <button
                         type="button"
