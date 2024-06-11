@@ -23,6 +23,7 @@ export default function useChoir(choirId) {
   const [members, setMembers] = useState([]);
   const [calendar, setCalendar] = useState([]);
   const [choirCode, setChoirCode] = useState(null);
+  const [channels, setChannels] = useState([]);
 
   useEffect(() => {
     let unsubscribeList = [];
@@ -59,6 +60,17 @@ export default function useChoir(choirId) {
         });
         unsubscribeList.push(songsUnsubscribe);
 
+        const channelsCollection = collection(choirRef, "channels");
+        const channelsQuery = query(channelsCollection);
+        const channelsUnsubscribe = onSnapshot(channelsQuery, (snapshot) => {
+          const channels = [];
+          snapshot.forEach((doc) => {
+            channels.push({ ...doc.data(), channelId: doc.id });
+          });
+          setChannels(channels);
+        });
+        unsubscribeList.push(channelsUnsubscribe);
+
         const membersCollection = collection(choirRef, "members");
         const membersQuery = query(membersCollection);
         const membersUnsubscribe = onSnapshot(membersQuery, (snapshot) => {
@@ -86,18 +98,17 @@ export default function useChoir(choirId) {
   }, [choirId]);
 
   const addFile = async (songId, formData) => {
-
     const songRef = doc(firestore, "choirs", choirId, "songs", songId);
-    
+
     // Upload the file to storage
     const file = formData.get("file");
     const fileName = formData.get("fileName");
     const storageRef = ref(storage, `${choirId}/songs/${songId}/${fileName}`);
     await uploadBytes(storageRef, file);
-  
+
     // Get the file URL
     const fileURL = await getDownloadURL(storageRef);
-  
+
     // Update the song document with the file
     await updateDoc(songRef, {
       files: arrayUnion({
@@ -105,12 +116,12 @@ export default function useChoir(choirId) {
         url: fileURL,
       }),
     });
-  
+
     // Update the last opened date
     await updateDoc(songRef, {
       lastOpened: serverTimestamp(),
     });
-  
+
     // Return the file URL
     return fileURL;
   };
@@ -160,23 +171,55 @@ export default function useChoir(choirId) {
   };
 
   const convertPdfToPng = async (pdfUrl, newSongId) => {
-    const response = await fetch('/api/pdfconvert', {
-      method: 'POST',
+    const response = await fetch("/api/pdfconvert", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         pdfUrl: pdfUrl,
         choirId: choirId,
-        songId: newSongId
-      })
+        songId: newSongId,
+      }),
     });
-  
+
     const result = await response.json();
-    console.log(result)
+    console.log(result);
     return result;
-  }
-  
+  };
+
+  const addChannel = async (channelName) => {
+    const channelsCollection = collection(
+      firestore,
+      "choirs",
+      choirId,
+      "channels"
+    );
+    const newChannel = await addDoc(channelsCollection, {
+      name: channelName,
+    });
+    // Add a message to the new channel
+    await addDoc(
+      collection(
+        firestore,
+        "choirs",
+        choirId,
+        "channels",
+        newChannel.id,
+        "messages"
+      ),
+      {
+        message: "Hello, welcome to the channel!",
+        createdAt: serverTimestamp(),
+        user: {
+          id: "system",
+          name: "System",
+        },
+      }
+    );
+    return { id: newChannel.id };
+  };
+
   return {
     choirId,
     songs,
@@ -186,6 +229,8 @@ export default function useChoir(choirId) {
     members,
     calendar,
     choirCode,
+    channels,
+    addChannel,
     renameSong,
     addSong,
     deleteSong,
@@ -194,6 +239,6 @@ export default function useChoir(choirId) {
     updateLastOpened,
     editCalendarEvent,
     deleteCalendarEvent,
-    convertPdfToPng
+    convertPdfToPng,
   };
 }
