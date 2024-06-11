@@ -8,12 +8,29 @@ import { ChevronLeftIcon } from "@heroicons/react/24/outline";
 import { useContext } from "react";
 import NewMessagingChannelModal from "@/components/NewMessagingChannelModal";
 import ChatApp from "@/components/ChatApp";
+import { useRouter } from "next/navigation";
 
 export default function ChatScreen() {
   const choir = useContext(ChoirContext);
   const choirId = choir.choirId;
   const user = useContext(UserContext);
   const state = useContext(StateContext);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const handlePopState = () => {
+      if (state.messagingChannel) {
+        state.setMessagingChannel(null);
+      } else {
+        router.push("/messaging");
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
 
   const channels = choir.channels;
   const [newChannelModalOpen, setNewChannelModalOpen] = useState(false);
@@ -22,11 +39,13 @@ export default function ChatScreen() {
     state.setMessagingChannel(channel);
   };
 
+  console.log(state.messagingChannel);
+
   if (state.messagingChannel) {
     return (
       <div className="w-full h-full">
         <button
-          onClick={() => state.setMessagingChannel(undefined)}
+          onClick={() => state.setMessagingChannel(null)}
           className="bg-blue-500 mb-2 flex flex-row hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
         >
           <ChevronLeftIcon className="h-6 w-6" />

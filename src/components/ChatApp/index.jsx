@@ -20,7 +20,6 @@ import {
   addDoc,
   arrayUnion,
 } from "firebase/firestore";
-import { useCollectionData } from "react-firebase-hooks/firestore";
 import { ChoirContext } from "@/components/ChoirContext";
 import { UserContext } from "@/components/UserContext";
 import { useContext } from "react";
@@ -46,6 +45,11 @@ export default function ChatApp() {
   const flatListRef = useRef();
 
   useEffect(() => {
+    if (!state?.messagingChannel?.channelId) return;
+    if (!choir?.choirId) return;
+    if (!firestore) return;
+
+    console.log( !state.messagingChannel);
     const messagesRef = collection(firestore, "choirs", choirId, "channels", state.messagingChannel.channelId, "messages");
     const q = query(
       messagesRef,
