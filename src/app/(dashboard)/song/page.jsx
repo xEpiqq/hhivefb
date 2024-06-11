@@ -4,6 +4,7 @@ import { useContext, useState } from "react";
 import { ChoirContext } from "@/components/ChoirContext";
 import { StateContext } from "@/components/StateContext";
 import AddFileModal from "@/components/AddFileModal";
+import FileContainer from "@/components/SongComponents/FileContainer";
 
 export default function SongPage({ params }) {
   const { songId } = useContext(StateContext);

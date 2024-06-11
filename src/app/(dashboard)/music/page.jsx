@@ -230,9 +230,9 @@ const MusicCard = ({ item, choir, enterSong }) => {
   const colorClass = letterColors[firstLetter] || "bg-gray-600";
 
   return (
-    <li className="overflow-hidden rounded-xl border border-gray-200">
-      <button onClick={enterSong}>
-        <div className="flex items-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-6">
+    <li className="overflow-hidden rounded-xl border border-gray-200 sm:min-w-48">
+      <button onClick={enterSong} className="w-full">
+        <div className="flex items-center gap-x-4 w-full h-full border-b border-gray-900/5 bg-gray-50 p-6">
           <div
             className={`flex w-16 h-16 flex-shrink-0 items-center justify-center rounded-lg ${colorClass} text-sm font-medium text-white`}
           >
@@ -354,7 +354,7 @@ export default function MusicPage() {
           <>
             <ul
               role="list"
-              className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4"
+              className="mt-3 flex gap-4"
             >
               {music.map((item) => (
                 <MusicCard

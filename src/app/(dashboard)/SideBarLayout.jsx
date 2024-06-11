@@ -7,6 +7,7 @@ import { redirect } from "next/navigation";
 import { Fragment, useState } from "react";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import  { StateContext } from "@/components/StateContext";
+import MusicPlayer from "@/components/MusicPlayer";
 import Link from 'next/link'
 import {
   Bars3Icon,
@@ -16,7 +17,9 @@ import {
   Cog6ToothIcon,
   DocumentDuplicateIcon,
   FolderIcon,
+  MusicalNoteIcon,
   HomeIcon,
+  EnvelopeIcon,
   UsersIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
@@ -31,10 +34,10 @@ import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
 const navigation = [
-  { name: "Music", href: "/music", icon: FolderIcon },
+  { name: "Music", href: "/music", icon: MusicalNoteIcon },
   { name: "Members", href: "/members", icon: UsersIcon },
   { name: "Calendar", href: "/calendar", icon: CalendarIcon },
-  { name: "Messaging", href: "/messaging", icon: HomeIcon },
+  { name: "Messaging", href: "/messaging", icon: EnvelopeIcon },
   { name: "Attendance", href: "/attendance", icon: DocumentDuplicateIcon },
 ];
 
@@ -243,9 +246,9 @@ export default function Layout({ children }) {
                   />
                 </div>
 
-                <button className="h-10 w-full bg-blue z-50 flex justify-start">
+                <h1 className="h-10 w-full bg-blue z-50 flex justify-start items-center text-2xl font-semibold text-gray-900">
                   {choir.name ? choir.name : <Skeleton width={100} height={30} />}
-                </button>
+                </h1>
 
 
                 <nav className="flex flex-1 flex-col">
@@ -517,10 +520,10 @@ export default function Layout({ children }) {
               </div>
 
               <main className="py-10 relative h-full">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full h-full">
+                <div className="mx-auto relative max-w-7xl px-4 sm:px-6 lg:px-8 w-full h-full">
                   {children}
                 </div>
-                {/* <MusicPlayer /> */}
+                <MusicPlayer />
               </main>
             </div>
           </div>
