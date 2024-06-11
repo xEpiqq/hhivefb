@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { firestore, storage } from "@/components/Firebase";
-
 import {
   doc,
   getDoc,
@@ -9,7 +8,6 @@ import {
   query,
   orderBy,
   onSnapshot,
-  limit,
   serverTimestamp,
   addDoc,
   arrayUnion,
@@ -88,30 +86,33 @@ export default function useChoir(choirId) {
   }, [choirId]);
 
   const addFile = async (songId, formData) => {
-    const songRef = doc(firestore, "choirs", choirId, "songs", songId);
-    // Upload the file to storage
-    const fileRef = ref(
-      storage,
-      `${choirId}/songs/${songId}/${formData.get("file").name}`
-    );
-    await uploadBytes(fileRef, formData.get("file"));
-    const downloadURL = await getDownloadURL(fileRef);
 
+    const songRef = doc(firestore, "choirs", choirId, "songs", songId);
+    
+    // Upload the file to storage
+    const file = formData.get("file");
+    const fileName = formData.get("fileName");
+    const storageRef = ref(storage, `${choirId}/songs/${songId}/${fileName}`);
+    await uploadBytes(storageRef, file);
+  
+    // Get the file URL
+    const fileURL = await getDownloadURL(storageRef);
+  
     // Update the song document with the file
     await updateDoc(songRef, {
       files: arrayUnion({
-        name: formData.get("fileName"),
-        url: downloadURL,
+        name: fileName,
+        url: fileURL,
       }),
     });
-
+  
     // Update the last opened date
     await updateDoc(songRef, {
       lastOpened: serverTimestamp(),
     });
-
+  
     // Return the file URL
-    return fileRef.fullPath;
+    return fileURL;
   };
 
   const renameSong = async (songId, newName) => {
@@ -155,9 +156,27 @@ export default function useChoir(choirId) {
       name: songName,
       lastOpened: serverTimestamp(),
     });
-    return newSong.id;
+    return { id: newSong.id };
   };
 
+  const convertPdfToPng = async (pdfUrl, newSongId) => {
+    const response = await fetch('/api/pdfconvert', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        pdfUrl: pdfUrl,
+        choirId: choirId,
+        songId: newSongId
+      })
+    });
+  
+    const result = await response.json();
+    console.log(result)
+    return result;
+  }
+  
   return {
     choirId,
     songs,
@@ -175,5 +194,6 @@ export default function useChoir(choirId) {
     updateLastOpened,
     editCalendarEvent,
     deleteCalendarEvent,
+    convertPdfToPng
   };
 }
