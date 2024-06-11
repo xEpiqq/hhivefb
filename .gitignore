@@ -10,7 +10,6 @@ firebase-debug.log
 .yarn/install-state.gz
 
 # no more package lock
-package-lock.json
 
 # testing
 /coverage
