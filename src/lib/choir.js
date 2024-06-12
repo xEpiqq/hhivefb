@@ -281,6 +281,17 @@ export default function useChoir(choirId) {
     return { id: newChannel.id };
   };
 
+  const removeMember = async (member) => {
+    console.log("removing member", member);
+    const memberRef = doc(firestore, "choirs", choirId, "members", member.memberId);
+    await deleteDoc(memberRef);
+  };
+
+  const updateMember = async (member) => {
+    const memberRef = doc(firestore, "choirs", choirId, "members", member.memberIdid);
+    await updateDoc(memberRef, member);
+  };
+
   return {
     choirId,
     songs,
@@ -302,5 +313,7 @@ export default function useChoir(choirId) {
     deleteCalendarEvent,
     convertPdfToPng,
     updateSongWithImages,
+    removeMember,
+    updateMember
   };
 }

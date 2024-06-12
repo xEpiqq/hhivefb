@@ -4,12 +4,15 @@ import { ChoirContext } from "../../../components/ChoirContext";
 import { useState, useContext, useEffect } from "react";
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
+import MemberSlidePanel from "@/components/MemberSidePanel";
 
 export default function Example() {
   const choir = useContext(ChoirContext);
   const [isLoading, setIsLoading] = useState(true);
   const [inputBox, setInputBox] = useState("");
   const [role, setRole] = useState("Member");
+  const [memberDetailsPanelOpen, setMemberDetailsPanelOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
 
   async function sendInvite() {
     if (role === "Member") {
@@ -71,7 +74,12 @@ export default function Example() {
   }, [choir.members]);
 
   return (
-    <div className="mx-auto sm:max-w-3x">
+    <div className="mx-auto sm:max-w-3x absolute relative">
+      <MemberSlidePanel
+        member={selectedMember}
+        setOpen={setMemberDetailsPanelOpen}
+        open={memberDetailsPanelOpen}
+      />
       <div>
         <div className="text-center">
           <svg
@@ -109,7 +117,7 @@ export default function Example() {
               name="emails"
               id="emails"
               className="peer relative col-start-1 row-start-1 border-0 bg-transparent py-3 px-3 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6 outline-none foc"
-              placeholder="Enter an email"  
+              placeholder="Enter an email"
               value={inputBox}
               onChange={(e) => setInputBox(e.target.value)}
             />
@@ -160,7 +168,14 @@ export default function Example() {
                 </li>
               ))
             : choir.members.map((member, personIdx) => (
-                <MemberCard key={personIdx} member={member} />
+                <MemberCard
+                  key={personIdx}
+                  member={member}
+                  onClick={() => {
+                    setSelectedMember(member);
+                    setMemberDetailsPanelOpen(true);
+                  }}
+                />
               ))}
         </ul>
       </div>
