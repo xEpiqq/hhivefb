@@ -138,16 +138,16 @@ export default function Layout({ children }) {
                                     <Link
                                       href={item.href}
                                       className={classNames(
-                                        item.href === pathname
-                                          ? "bg-gray-50 text-indigo-600"
+                                        item.href === pathname || (item.name === "Music" && pathname.startsWith("/song"))
+                                        ? "bg-gray-50 text-indigo-600"
                                           : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50",
                                         "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                                       )}
                                     >
                                       <item.icon
                                         className={classNames(
-                                          item.href == pathname
-                                            ? "text-indigo-600"
+                                          item.href === pathname || (item.name === "Music" && pathname.startsWith("/song"))
+                                          ? "text-indigo-600"
                                             : "text-gray-400 group-hover:text-indigo-600",
                                           "h-6 w-6 shrink-0"
                                         )}
@@ -238,7 +238,7 @@ export default function Layout({ children }) {
                   />
                 </div>
 
-                <h1 className="h-10 w-full bg-blue z-50 flex justify-start items-center text-2xl font-semibold text-gray-900">
+                <h1 className="h-10 w-full bg-blue z-50 flex justify-start items-center text-md font-semibold text-gray-900">
                   {choir.name ? choir.name : <Skeleton width={100} height={30} />}
                 </h1>
 
@@ -251,7 +251,9 @@ export default function Layout({ children }) {
                             <Link
                               href={item.href}
                               className={classNames(
-                                pathname.includes(item.href)
+                                    
+                                item.href === pathname || (item.name === "Music" && pathname.startsWith("/song"))
+
                                   ? "border-dotted border-2 border-gray-300 bg-gray-50 text-indigo-600"
                                   : "text-gray-700 hover:text-indigo-600 hover:bg-gray-50",
                                 "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
@@ -259,7 +261,7 @@ export default function Layout({ children }) {
                             >
                               <item.icon
                                 className={classNames(
-                                  pathname.includes(item.href)
+                                  item.href === pathname || (item.name === "Music" && pathname.startsWith("/song"))
                                     ? "text-indigo-600"
                                     : "text-gray-400 group-hover:text-indigo-600",
                                   "h-6 w-6 shrink-0"
@@ -341,7 +343,10 @@ export default function Layout({ children }) {
             </div>
 
             <div className="lg:pl-72 h-full w-full flex flex-col">
+            {!pathname.includes("/song") && (
+
               <div className="sticky top-0 z-40 w-full lg:mx-auto lg:max-w-7xl lg:px-8">
+
                 <div className="flex h-16 items-center gap-x-4 border-b border-gray-200 bg-white px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-0 lg:shadow-none">
                   <button
                     type="button"
@@ -359,7 +364,6 @@ export default function Layout({ children }) {
                   />
 
                   <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-                    {!pathname.includes("/song") && (
                       <form
                         className="relative flex flex-1"
                         action="#"
@@ -381,8 +385,9 @@ export default function Layout({ children }) {
                           name="search"
                         />
                       </form>
-                    )}
+                      
                     <div className="flex items-center gap-x-4 lg:gap-x-6">
+                      
                       <button
                         type="button"
                         className="-m-2.5 p-2.5 text-gray-400 hover:text-gray-500"
@@ -437,8 +442,11 @@ export default function Layout({ children }) {
                                 />
                               </span>
                             )}
+                            
                           </span>
+                          
                         </Menu.Button>
+                        
                         <Transition
                           as={Fragment}
                           enter="transition ease-out duration-100"
@@ -508,6 +516,9 @@ export default function Layout({ children }) {
                   </div>
                 </div>
               </div>
+
+            )}
+
 
               <main className="py-10 relative h-full">
                 <div className="mx-auto relative max-w-7xl px-4 sm:px-6 lg:px-8 w-full h-full">
