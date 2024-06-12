@@ -323,10 +323,8 @@ export default function MusicPage() {
           {newSongModal && <AddSongPage newSongModal={newSongModal} setNewSongModal={setNewSongModal} onClose={() => setNewSongModal(false)} />}
         </div>
         <h3 className="text-base font-semibold leading-6 text-gray-900">
-          Music Hive
+          Music
         </h3>
-        <button onClick={() => state.setSongId("En9fOrLv1zAwjJ1t1HeJ")}>Set SongId</button>
-
         <div className="mt-3 sm:ml-4 sm:mt-0">
           <button
             type="button"

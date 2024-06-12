@@ -15,8 +15,8 @@ const pages = [
 
 const steps = [
   { id: 'Step 1', name: 'Upload Sheet Music', href: '#', status: 'current' },
-  { id: 'Step 2', name: 'Song Title', href: '#', status: 'upcoming' },
-  { id: 'Step 3', name: 'Upload Audio', href: '#', status: 'upcoming' },
+  { id: 'Step 2', name: 'Upload Audio', href: '#', status: 'upcoming' },
+  { id: 'Step 3', name: 'Song Title', href: '#', status: 'upcoming' },
 ];
 
 function classNames(...classes) {
@@ -53,12 +53,12 @@ export default function AddSongPage( { setNewSongModal } ) {
       alert('Please upload the sheet music.');
       return false;
     }
-    if (currentStep === 1 && !newSongTitle) { 
-      alert('Please enter the song title.');
+    if (currentStep === 1 && !newSongAudio) { 
+      alert('Please upload the accompaniment audio.');
       return false;
     }
-    if (currentStep === 2 && !newSongAudio) { 
-      alert('Please upload the accompaniment audio.');
+    if (currentStep === 2 && !newSongTitle) { 
+      alert('Please enter the song title.');
       return false;
     }
     return true;
@@ -104,36 +104,39 @@ export default function AddSongPage( { setNewSongModal } ) {
   
     const newSong = await choir.addSong(newSongTitle);
     const newSongId = newSong.id;
-    setProgressSmoothly(20); // Update progress smoothly to 10%
-
+    setProgressSmoothly(20); // Update progress smoothly to 20%
   
     if (uploadType === 'pdf' && newSongSheetMusic) {
       const pdfData = new FormData();
       pdfData.append('file', newSongSheetMusic);
-      pdfData.append('fileName', 'sheet-music.pdf');
-      setProgressSmoothly(40); // Update progress smoothly to 10%
-
+      pdfData.append('fileType', 'satb_pdf'); // Set the fileType as satb_pdf
+      setProgressSmoothly(40); // Update progress smoothly to 40%
+  
       const pdfUrl = await choir.addFile(newSongId, pdfData);
-      setProgressSmoothly(60); // Update progress smoothly to 40%
+      setProgressSmoothly(60); // Update progress smoothly to 60%
   
       const classicResponse = await choir.convertPdfToPng(pdfUrl, newSongId);
-      setProgressSmoothly(99);
+      setProgressSmoothly(99); // Update progress smoothly to 99%
       console.log(classicResponse);
     } else if (uploadType === 'images' && newSongSheetMusicImages.length > 0) {
+      const imageUrls = [];
       for (const image of newSongSheetMusicImages) {
         const imageData = new FormData();
         imageData.append('file', image);
-        imageData.append('fileName', `sheet-music-${image.name}`);
-        await choir.addFile(newSongId, imageData);
+        imageData.append('fileType', 'satb_sheets'); // Set the fileType as satb_sheets
+        const imageUrl = await choir.addFile(newSongId, imageData);
+        imageUrls.push(imageUrl);
       }
-      setProgressSmoothly(99); // Update progress smoothly to 70%
+      // Save the imageUrls array to Firebase under the field satb_sheets
+      await choir.updateSongWithImages(newSongId, imageUrls);
+      setProgressSmoothly(99); // Update progress smoothly to 99%
     }
   
     const musicData = new FormData();
     musicData.append('file', newSongAudio);
-    musicData.append('fileName', 'audio.mp3');
+    musicData.append('fileType', 'satb_audio'); // Set the fileType as satb_audio
     await choir.addFile(newSongId, musicData);
-    setProgressSmoothly(99); // Update progress smoothly to 90%
+    setProgressSmoothly(99); // Update progress smoothly to 99%
   
     setIsSaving(false);
     choir.updateLastOpened(newSongId);
@@ -141,6 +144,8 @@ export default function AddSongPage( { setNewSongModal } ) {
     setProgressSmoothly(100); // Update progress smoothly to 100%
     router.push(`/song`);
   }
+  
+  
 
   function setProgressSmoothly(targetProgress) {
     const interval = setInterval(() => {
@@ -310,6 +315,21 @@ export default function AddSongPage( { setNewSongModal } ) {
                     {currentStep === 1 && (
                       <div className="w-full">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
+                          SATB Audio / Accompaniment (MP3)
+                        </label>
+                        <input
+                          type="file"
+                          name="audio"
+                          onChange={(e) => setNewSongAudio(e.target.files[0])}
+                          className="block w-full rounded-md border-0 focus:ring-indigo-500 sm:text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500"
+                          style={{ fontSize: newSongAudio ? 'initial' : 0 }}
+                        />
+                      </div>
+                    )}
+
+                  {currentStep === 2 && (
+                      <div className="w-full">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
                           Enter the title of your new song
                         </label>
                         <input
@@ -323,20 +343,6 @@ export default function AddSongPage( { setNewSongModal } ) {
                       </div>
                     )}
 
-                    {currentStep === 2 && (
-                      <div className="w-full">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          SATB Audio / Accompaniment (MP3)
-                        </label>
-                        <input
-                          type="file"
-                          name="audio"
-                          onChange={(e) => setNewSongAudio(e.target.files[0])}
-                          className="block w-full rounded-md border-0 focus:ring-indigo-500 sm:text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-500"
-                          style={{ fontSize: newSongAudio ? 'initial' : 0 }}
-                        />
-                      </div>
-                    )}
                   </div>
 
                   <div className="flex justify-between mt-48">
