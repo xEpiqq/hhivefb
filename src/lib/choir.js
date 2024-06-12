@@ -97,34 +97,95 @@ export default function useChoir(choirId) {
     };
   }, [choirId]);
 
-  const addFile = async (songId, formData) => {
-    const songRef = doc(firestore, "choirs", choirId, "songs", songId);
+  // const addFile = async (songId, formData) => {
+  //   const songRef = doc(firestore, "choirs", choirId, "songs", songId);
 
+  //   // Upload the file to storage
+  //   const file = formData.get("file");
+  //   const fileName = formData.get("fileName");
+  //   const storageRef = ref(storage, `${choirId}/songs/${songId}/${fileName}`);
+  //   await uploadBytes(storageRef, file);
+
+  //   // Get the file URL
+  //   const fileURL = await getDownloadURL(storageRef);
+
+  //   // Update the song document with the file
+  //   await updateDoc(songRef, {
+  //     files: arrayUnion({
+  //       name: fileName,
+  //       url: fileURL,
+  //     }),
+  //   });
+
+  //   // Update the last opened date
+  //   await updateDoc(songRef, {
+  //     lastOpened: serverTimestamp(),
+  //   });
+
+  //   // Return the file URL
+  //   return fileURL;
+  // };
+
+  const addFile = async (songId, formData) => {
+    const fileType = formData.get("fileType"); // Get the fileType from the formData
+    const songRef = doc(firestore, "choirs", choirId, "songs", songId);
+  
     // Upload the file to storage
     const file = formData.get("file");
-    const fileName = formData.get("fileName");
+    const fileName = file.name; // Use the file name directly from the file object
     const storageRef = ref(storage, `${choirId}/songs/${songId}/${fileName}`);
     await uploadBytes(storageRef, file);
-
+  
     // Get the file URL
     const fileURL = await getDownloadURL(storageRef);
-
-    // Update the song document with the file
-    await updateDoc(songRef, {
-      files: arrayUnion({
-        name: fileName,
-        url: fileURL,
-      }),
-    });
-
-    // Update the last opened date
-    await updateDoc(songRef, {
+  
+    // Prepare the update object
+    let updateData = {
       lastOpened: serverTimestamp(),
-    });
-
+    };
+  
+    // Update specific field based on fileType
+    if (fileType === 'soprano_audio') {
+      updateData.soprano_audio = fileURL;
+    } else if (fileType === 'alto_audio') {
+      updateData.alto_audio = fileURL;
+    } else if (fileType === 'tenor_audio') {
+      updateData.tenor_audio = fileURL;
+    } else if (fileType === 'bass_audio') {
+      updateData.bass_audio = fileURL;
+    } else if (fileType === 'satb_sheets') {
+      // Add each image URL to an array for satb_sheets
+      const songDoc = await getDoc(songRef);
+      const existingUrls = songDoc.data().satb_sheets || [];
+      updateData.satb_sheets = [...existingUrls, fileURL];
+    } else if (fileType === 'satb_audio') {
+      updateData.satb_audio = fileURL;
+    } else if (fileType === 'satb_pdf') {
+      updateData.satb_pdf = fileURL;
+    } else {
+      throw new Error("Invalid file type");
+    }
+  
+    // Update the song document with the file
+    await updateDoc(songRef, updateData);
+  
     // Return the file URL
     return fileURL;
   };
+  
+  // New function to update song with image URLs
+  const updateSongWithImages = async (songId, imageUrls) => {
+    const songRef = doc(firestore, "choirs", choirId, "songs", songId);
+    const updateData = {
+      satb_sheets: imageUrls,
+    };
+    await updateDoc(songRef, updateData);
+  };
+  
+  
+  
+  
+  
 
   const renameSong = async (songId, newName) => {
     const songRef = doc(firestore, "choirs", choirId, "songs", songId);
@@ -240,5 +301,6 @@ export default function useChoir(choirId) {
     editCalendarEvent,
     deleteCalendarEvent,
     convertPdfToPng,
+    updateSongWithImages,
   };
 }

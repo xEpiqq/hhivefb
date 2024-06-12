@@ -1,21 +1,16 @@
 "use client";
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import {
-  ExclamationTriangleIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/outline";
+import { XMarkIcon } from "@heroicons/react/24/outline";
 
-export default function AddFileModal({ open, setOpen, choir, songId }) {
+export default function AddFileModal({ open, setOpen, choir, songId, fileType }) {
   const [file, setFile] = useState(null);
-  const [fileName, setFileName] = useState("");
 
   const addFile = async () => {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("fileName", fileName);
-
-    choir.addFile(songId, formData);
+    formData.append("fileType", fileType); // Include fileType in the form data
+    await choir.addFile(songId, formData); // Ensure this function returns a promise
 
     setOpen(false);
   };
@@ -58,22 +53,19 @@ export default function AddFileModal({ open, setOpen, choir, songId }) {
                   </button>
                 </div>
                 <div className="sm:flex sm:items-start flex-col">
-                  {/* <div className="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                    <ExclamationTriangleIcon className="h-6 w-6 text-red-600" aria-hidden="true" />
-                  </div> */}
                   <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
                     <Dialog.Title
                       as="h3"
                       className="text-base font-semibold leading-6 text-gray-900"
                     >
-                      Add Music File
+                      Add {fileType} File
                     </Dialog.Title>
                     <div className="flex flex-col w-full mt-3">
                       <label
                         htmlFor="file"
-                        className="text-sm text-gray-500 bg-slate-300 rounded-md p-10 cursor-pointer hover:bg-slate-400"
+                        className="text-sm text-gray-500 bg-slate-100 rounded-md p-4 cursor-pointer hover:bg-slate-200 border-dashed border-2 border-gray-300"
                       >
-                        {file ? file.name : "Choose a file"}
+                        {file ? file.name : `Choose a file for ${fileType}`}
                       </label>
                       <input
                         onChange={(e) => setFile(e.target.files[0])}
@@ -83,38 +75,12 @@ export default function AddFileModal({ open, setOpen, choir, songId }) {
                         className="hidden"
                       />
                     </div>
-                    <div className="flex flex-col w-full  mt-3">
-                      <label
-                        htmlFor="file-name"
-                        className="text-sm font-semibold text-gray-700"
-                      >
-                        File Name
-                      </label>
-                      <input
-                        type="text"
-                        name="file-name"
-                        id="file-name"
-                        value={fileName}
-                        onChange={(e) => setFileName(e.target.value)}
-                        className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                        placeholder="Saprano 1 - O Holy Night.pdf"
-                      />
-                    </div>
-                    {/* <div className="mt-2">
-                      <p className="text-sm text-gray-500">
-                        Are you sure you want to deactivate your account? All of your data will be permanently removed
-                        from our servers forever. This action cannot be undone.
-                      </p>
-                    </div> */}
                   </div>
-                  {/* <div className="mt-5 sm:mt-4 sm:ml-10 sm:flex sm:flex-col sm:flex-grow">
-                    
-                  </div> */}
                 </div>
                 <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
                   <button
                     type="button"
-                    className="inline-flex w-full justify-center rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
+                    className="inline-flex w-full justify-center rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-600 sm:ml-3 sm:w-auto"
                     onClick={() => addFile()}
                   >
                     Add File
