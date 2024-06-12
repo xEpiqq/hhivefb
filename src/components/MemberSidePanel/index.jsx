@@ -1,4 +1,4 @@
-import { Fragment, useState, useContext } from "react";
+import { Fragment, useState, useContext, useEffect } from "react";
 import {
   Dialog,
   DialogPanel,
@@ -14,11 +14,27 @@ import {
 } from "@heroicons/react/20/solid";
 import { ChoirContext } from "@/components/ChoirContext";
 
+const userRoles = [
+  { id: "Admin", title: "Admin" },
+  { id: "Member", title: "Member" },
+];
+
 export default function MemberSlidePanel({ open, setOpen, member }) {
   const choir = useContext(ChoirContext);
 
-  if (member === null)
-    return null;
+  const [role, setRole] = useState("Member");
+
+  if (member === null) return null;
+
+  useEffect(() => {
+    setRole(member.role);
+  }, [member]);
+
+  useEffect(() => {
+    console.log(role);
+  }, [role]);
+
+  console.log(member.role)
 
   return (
     <Transition show={open}>
@@ -62,36 +78,48 @@ export default function MemberSlidePanel({ open, setOpen, member }) {
                       </div>
                       <div className="flex flex-1 flex-col justify-between">
                         <div className="divide-y divide-gray-200 px-4 sm:px-6">
-                          <div className="space-y-6 pb-5 pt-6">
+                          <div className="space-y-1 pb-5 pt-6">
                             <div>{member.name}</div>
+                            <div className="text-sm text-gray-500">
+                              {member.email}
+                            </div>
+                            <div className="text-sm text-gray-500">
+                              Joined{" "}
+                              {new Date(member.dateJoined.toDate()).toLocaleDateString()}
+                            </div>
                           </div>
                           <div className="pb-6 pt-4">
-                            <div className="flex text-sm">
-                              <a
-                                href="#"
-                                className="group inline-flex items-center font-medium text-indigo-600 hover:text-indigo-900"
-                              >
-                                <LinkIcon
-                                  className="h-5 w-5 text-indigo-500 group-hover:text-indigo-900"
-                                  aria-hidden="true"
-                                />
-                                <span className="ml-2">Copy link</span>
-                              </a>
-                            </div>
-                            <div className="mt-4 flex text-sm">
-                              <a
-                                href="#"
-                                className="group inline-flex items-center text-gray-500 hover:text-gray-900"
-                              >
-                                <QuestionMarkCircleIcon
-                                  className="h-5 w-5 text-gray-400 group-hover:text-gray-500"
-                                  aria-hidden="true"
-                                />
-                                <span className="ml-2">
-                                  Learn more about sharing
-                                </span>
-                              </a>
-                            </div>
+                            <fieldset>
+                              <legend className="text-sm font-semibold leading-6 text-gray-900">
+                                Permissions
+                              </legend>
+                              <p className="mt-1 text-sm leading-6 text-gray-600">
+                                What permissions do you want to give this user?
+                              </p>
+                              <div className="mt-6 space-y-6 sm:flex sm:items-center sm:space-x-10 sm:space-y-0">
+                                {userRoles.map((userRole) => (
+                                  <div
+                                    key={userRole.id}
+                                    className="flex items-center"
+                                  >
+                                    <input
+                                      id={userRole.id}
+                                      name="user-permissions"
+                                      type="radio"
+                                      defaultChecked={userRole.id === member.role}
+                                      onChange={(e) => setRole(e.target.value)}
+                                      className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                    />
+                                    <label
+                                      htmlFor={userRole.id}
+                                      className="ml-3 block text-sm font-medium leading-6 text-gray-900"
+                                    >
+                                      {userRole.title}
+                                    </label>
+                                  </div>
+                                ))}
+                              </div>
+                            </fieldset>
                           </div>
                         </div>
                       </div>

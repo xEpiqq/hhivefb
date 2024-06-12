@@ -82,6 +82,7 @@ export async function POST(request) {
         email,
         name: userDoc.data().name,
         role: "Member",
+        dateJoined: new Date(),
       });
     } else {
       console.log(`User ${email} is already a member of the choir`);
