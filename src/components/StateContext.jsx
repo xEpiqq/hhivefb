@@ -11,12 +11,19 @@ export default function StateContextProvider({ children }) {
 
   useEffect(() => {
     // Store state in local storage
-    localStorage.setItem("choirId", choirId);
-    localStorage.setItem("songId", songId);
-    localStorage.setItem("messagingChannel", messagingChannel);
+    if (choirId) {
+      setChoirId(localStorage.getItem("choirId"));
+    }
+    if (songId) {
+      setSongId(localStorage.getItem("songId"));
+    }
+    if (messagingChannel) {
+      setMessagingChannel(localStorage.getItem("messagingChannel"));
+    }
   }, [choirId, songId, messagingChannel]);
 
   useEffect(() => {
+    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAA")
     // Retrieve state from local storage
     setChoirId(localStorage.getItem("choirId"));
     setSongId(localStorage.getItem("songId"));
