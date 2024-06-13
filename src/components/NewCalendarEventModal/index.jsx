@@ -67,6 +67,7 @@ export default function NewCalendarEventModal({ open, setOpen, submit, selectedD
                       location,
                       notes,
                     });
+                    setOpen(false);
                   }}
                 >
                   <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
