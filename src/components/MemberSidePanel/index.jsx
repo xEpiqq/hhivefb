@@ -24,17 +24,12 @@ export default function MemberSlidePanel({ open, setOpen, member }) {
 
   const [role, setRole] = useState("Member");
 
-  if (member === null) return null;
-
   useEffect(() => {
+    if (member === null) return;
     setRole(member.role);
   }, [member]);
 
-  useEffect(() => {
-    console.log(role);
-  }, [role]);
-
-  console.log(member.role)
+  if (member === null) return null;
 
   return (
     <Transition show={open}>

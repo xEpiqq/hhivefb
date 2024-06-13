@@ -6,6 +6,7 @@ import { useContext, useEffect, Fragment, useState } from "react";
 import { redirect } from "next/navigation";
 import { Dialog, Menu, Transition } from "@headlessui/react";
 import { StateContext } from "@/components/StateContext";
+import { signOut } from "next-auth/react";
 import MusicPlayer from "@/components/MusicPlayer";
 import Link from 'next/link';
 import {
@@ -466,34 +467,21 @@ export default function Layout({ children }) {
                                     "block px-4 py-2 text-sm text-gray-700"
                                   )}
                                 >
-                                  Your Profile
+                                  Settings
                                 </a>
                               )}
                             </Menu.Item>
                             <Menu.Item>
                               {({ active }) => (
-                                <a
-                                  href="#"
-                                  className={classNames(
-                                    active ? "bg-gray-100" : "",
-                                    "block px-4 py-2 text-sm text-gray-700"
-                                  )}
-                                >
-                                  Subscription
-                                </a>
-                              )}
-                            </Menu.Item>
-                            <Menu.Item>
-                              {({ active }) => (
-                                <a
-                                  href="#"
+                                <button
+                                  onClick={() => signOut({ callbackUrl: "/" })}
                                   className={classNames(
                                     active ? "bg-gray-100" : "",
                                     "block px-4 py-2 text-sm text-gray-700"
                                   )}
                                 >
                                   Sign Out
-                                </a>
+                                </button>
                               )}
                             </Menu.Item>
                             <Menu.Item>

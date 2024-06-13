@@ -11,10 +11,6 @@ import { Menu, Transition } from "@headlessui/react";
 import { ChoirContext } from "../../../components/ChoirContext";
 import NewCalendarEventModal from "@/components/NewCalendarEventModal";
 
-function NavigationLabel({ label }) {
-  return <span className="text-sm font-semibold text-gray-900">{label}</span>;
-}
-
 function TileContent({ date, events }) {
   const hasEvent = events.some((event) => {
     const eventDate = new Date(event.date);
