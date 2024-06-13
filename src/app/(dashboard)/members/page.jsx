@@ -74,7 +74,7 @@ export default function Example() {
   }, [choir.members]);
 
   return (
-    <div className="mx-auto sm:max-w-3x absolute relative">
+    <div className="mx-auto sm:max-w-3x relative">
       <MemberSlidePanel
         member={selectedMember}
         setOpen={setMemberDetailsPanelOpen}
