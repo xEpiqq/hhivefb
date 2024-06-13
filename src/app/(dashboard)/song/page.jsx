@@ -90,11 +90,38 @@ export default function SongPage({ params }) {
       </div>
 
       {/* Song Page Content */}
-      <div className="flex gap-3 flex-col justify-between mt-6">
+      {/* <div className="flex gap-3 flex-col justify-between mt-6">
         {song?.files?.map((file) => (
           <FileContainer key={file.fileId} file={file} />
-        ))}
+        ))} */}
+
+        {/* Song Page Content */}
+        <div className="flex gap-3 flex-col justify-between mt-6">
+        {song?.satb_sheets && (
+          <FileContainer key="satb_sheets" file={{ url: song.satb_sheets, name: 'SATB Sheets', type: 'satb_sheets' }} />
+        )}
+          {song?.satb_audio && (
+          <FileContainer key={song.satb_audio} file={{ url: song.satb_audio, name: 'Satb Audio', type: 'audio' }} />
+        )}
+        {song?.soprano_audio && (
+          <FileContainer key={song.soprano_audio} file={{ url: song.soprano_audio, name: 'Soprano Audio', type: 'audio' }} />
+        )}
+        {song?.alto_audio && (
+          <FileContainer key={song.alto_audio} file={{ url: song.alto_audio, name: 'Alto Audio', type: 'audio' }} />
+        )}
+        {song?.tenor_audio && (
+          <FileContainer key={song.tenor_audio} file={{ url: song.tenor_audio, name: 'Tenor Audio', type: 'audio' }} />
+        )}
+        {song?.bass_audio && (
+          <FileContainer key={song.bass_audio} file={{ url: song.bass_audio, name: 'Bass Audio', type: 'audio' }} />
+        )}
       </div>
+
+
+
+
+
+      {/* </div> */}
 
       {missingParts.length > 0 && (
         <div className="my-6">
@@ -126,8 +153,6 @@ export default function SongPage({ params }) {
           ))}
         </div>
       )}
-
-      <button onClick={() => console.log(songId)}>Best butotn</button>
 
       <AddFileModal
         songId={songId}
