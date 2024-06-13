@@ -10,20 +10,31 @@ export default function StateContextProvider({ children }) {
   const [messagingChannel, setMessagingChannel] = useState();
 
   useEffect(() => {
-    // Store state in local storage
-    if (choirId) {
-      setChoirId(localStorage.getItem("choirId"));
-    }
-    if (songId) {
-      setSongId(localStorage.getItem("songId"));
-    }
-    if (messagingChannel) {
-      setMessagingChannel(localStorage.getItem("messagingChannel"));
-    }
-  }, [choirId, songId, messagingChannel]);
+    setSongId(undefined);
+    setMessagingChannel(undefined);
+  }, [choirId]);
 
   useEffect(() => {
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAA")
+    // Store state in local storage
+    if (choirId) {
+      console.log("choirId", choirId);
+      localStorage.setItem("choirId", choirId);
+    }
+  }, [choirId]);
+
+  useEffect(() => {
+    if (songId) {
+      localStorage.setItem("songId", songId);
+    }
+  }, [songId]);
+
+  useEffect(() => {
+    if (messagingChannel) {
+      localStorage.setItem("messagingChannel", messagingChannel);
+    }
+  }, [messagingChannel]);
+
+  useEffect(() => {
     // Retrieve state from local storage
     setChoirId(localStorage.getItem("choirId"));
     setSongId(localStorage.getItem("songId"));
@@ -31,7 +42,16 @@ export default function StateContextProvider({ children }) {
   }, []);
 
   return (
-    <StateContext.Provider value={{ choirId, setChoirId, songId, setSongId, messagingChannel, setMessagingChannel }}>
+    <StateContext.Provider
+      value={{
+        choirId,
+        setChoirId,
+        songId,
+        setSongId,
+        messagingChannel,
+        setMessagingChannel,
+      }}
+    >
       {children}
     </StateContext.Provider>
   );
