@@ -11,6 +11,7 @@ export default function NewCalendarEventModal({ open, setOpen, submit, selectedD
   const [date, setDate] = useState("");
 
   useEffect(() => {
+    console.log("selectedDate in useEffect:", selectedDate);
     if (selectedDate) {
       setDate(selectedDate.toISOString().split('T')[0]);
     } else {
@@ -25,15 +26,18 @@ export default function NewCalendarEventModal({ open, setOpen, submit, selectedD
       setTime(eventData.time || "18:00");
       setLocation(eventData.location || "");
       setNotes(eventData.notes || "");
+    } else if (selectedDate) {
+      setDate(selectedDate.toISOString().split('T')[0]);
     } else {
       // Reset to default values if eventData is null
       setTitle("");
       setLocation("");
-      setDate(""); // Set to empty string for no default date
+      setDate(selectedDate); // Set to empty string for no default date
       setTime("18:00");
       setNotes("");
     }
-  }, [eventData]);
+  }, [eventData, selectedDate]);
+  
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -49,6 +53,7 @@ export default function NewCalendarEventModal({ open, setOpen, submit, selectedD
         >
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </Transition.Child>
+
 
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">

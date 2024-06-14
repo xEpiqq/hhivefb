@@ -80,7 +80,6 @@ export default function CalendarPage() {
   };
     const handleAddEvent = () => {
     setEditEventData(null);
-    setSelectedDate(null);
     setNewCalendarEventModalOpen(true);
   };
   
@@ -340,20 +339,6 @@ export default function CalendarPage() {
                   onClick={() => handleEditEvent(event)}
                 >
                   Edit
-                </a>
-              )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
-                <a
-                  href="#"
-                  className={classNames(
-                    active ? "bg-gray-100 text-gray-900" : "text-gray-700",
-                    "block px-4 py-2 text-sm"
-                  )}
-                  onClick={() => cancelEvent(event.eventId)}
-                >
-                  Cancel
                 </a>
               )}
             </Menu.Item>
