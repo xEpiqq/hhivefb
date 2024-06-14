@@ -3,54 +3,37 @@ import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
-export default function NewCalendarEventModal({ open, setOpen, submit, selectedDate, eventData  }) {
+export default function NewCalendarEventModal({ open, setOpen, submit, selectedDate, eventData }) {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [time, setTime] = useState("18:00");
   const [notes, setNotes] = useState("");
+  const [date, setDate] = useState("");
 
   useEffect(() => {
     if (selectedDate) {
       setDate(selectedDate.toISOString().split('T')[0]);
+    } else {
+      setDate(""); // Set date to an empty string if no date is selected
     }
   }, [selectedDate]);
   
   useEffect(() => {
     if (eventData) {
       setTitle(eventData.name || "");
-  
-      // Convert date to local date
-      const eventDate = new Date(eventData.date);
-      const eventTime = eventData.time;
-  
-      const [hours, minutes] = eventTime.split(':').map(Number);
-  
-      // Adjust the date if the time is 6 PM or later
-      if (hours >= 18) {
-        eventDate.setDate(eventDate.getDate() - 1);
-      }
-  
-      // Format the date and time to local time zone
-      const localDate = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate(), hours, minutes);
-      const localDateString = localDate.toISOString().split('T')[0];
-      const localTimeString = localDate.toTimeString().split(' ')[0].slice(0, 5);
-  
-      setDate(localDateString);
-      setTime(localTimeString);
+      setDate(eventData.date || "");
+      setTime(eventData.time || "18:00");
       setLocation(eventData.location || "");
       setNotes(eventData.notes || "");
     } else {
       // Reset to default values if eventData is null
       setTitle("");
       setLocation("");
-      setDate(new Date().toISOString().split('T')[0]);
+      setDate(""); // Set to empty string for no default date
       setTime("18:00");
       setNotes("");
     }
   }, [eventData]);
-  
-  
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -79,20 +62,24 @@ export default function NewCalendarEventModal({ open, setOpen, submit, selectedD
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
               <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-              <form
-                className="mt-5 sm:mt-4 sm:flex sm:flex-col"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  submit({
-                    name: title,
-                    date,
-                    time,
-                    location,
-                    notes,
-                  });
-                  setOpen(false);
-                }}
-              >
+                <form
+                  className="mt-5 sm:mt-4 sm:flex sm:flex-col"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!date) {
+                      alert("Please select a date for the event.");
+                      return;
+                    }
+                    submit({
+                      name: title,
+                      date,
+                      time,
+                      location,
+                      notes,
+                    });
+                    setOpen(false);
+                  }}
+                >
                   <div className="absolute right-0 top-0 hidden pr-4 pt-4 sm:block">
                     <button
                       type="button"
