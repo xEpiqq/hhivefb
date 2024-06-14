@@ -3,31 +3,41 @@ import { Fragment, useState, useEffect } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
-export default function NewCalendarEventModal({ open, setOpen, submit, selectedDate, eventData  }) {
+export default function NewCalendarEventModal({ open, setOpen, submit, selectedDate, eventData }) {
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [time, setTime] = useState("18:00");
   const [notes, setNotes] = useState("");
+  const [date, setDate] = useState("");
 
   useEffect(() => {
+    console.log("selectedDate in useEffect:", selectedDate);
     if (selectedDate) {
       setDate(selectedDate.toISOString().split('T')[0]);
-      console.log(selectedDate);
+    } else {
+      setDate(""); // Set date to an empty string if no date is selected
     }
   }, [selectedDate]);
-
+  
   useEffect(() => {
     if (eventData) {
-      console.log("event data from modal below")
-      console.log(eventData)
-      // setTitle(eventData.name || "");
-      // setDate(new Date(eventData.date).toISOString().split('T')[0]);
-      // setTime(new Date(eventData.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) || "18:00");
-      // setLocation(eventData.location || "");
-      // setNotes(eventData.notes || "");
+      setTitle(eventData.name || "");
+      setDate(eventData.date || "");
+      setTime(eventData.time || "18:00");
+      setLocation(eventData.location || "");
+      setNotes(eventData.notes || "");
+    } else if (selectedDate) {
+      setDate(selectedDate.toISOString().split('T')[0]);
+    } else {
+      // Reset to default values if eventData is null
+      setTitle("");
+      setLocation("");
+      setDate(selectedDate); // Set to empty string for no default date
+      setTime("18:00");
+      setNotes("");
     }
-  }, [eventData]);
+  }, [eventData, selectedDate]);
+  
 
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -43,6 +53,7 @@ export default function NewCalendarEventModal({ open, setOpen, submit, selectedD
         >
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </Transition.Child>
+
 
         <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
@@ -60,6 +71,10 @@ export default function NewCalendarEventModal({ open, setOpen, submit, selectedD
                   className="mt-5 sm:mt-4 sm:flex sm:flex-col"
                   onSubmit={(e) => {
                     e.preventDefault();
+                    if (!date) {
+                      alert("Please select a date for the event.");
+                      return;
+                    }
                     submit({
                       name: title,
                       date,
@@ -187,7 +202,7 @@ export default function NewCalendarEventModal({ open, setOpen, submit, selectedD
                       type="submit"
                       className="inline-flex w-full justify-center rounded-md bg-indigo-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-red-500 sm:ml-3 sm:w-auto"
                     >
-                      Create Event
+                      {eventData ? "Save" : "Create Event"}
                     </button>
                     <button
                       type="button"
