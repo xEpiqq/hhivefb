@@ -1,18 +1,17 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { ChoirContext } from "../../../components/ChoirContext";
-import { UserContext } from "../../../components/UserContext";
+import React, { useEffect, useState, useContext } from "react";
+import { ChoirContext } from "@/components/ChoirContext";
+import { UserContext } from "@/components/UserContext";
 import { StateContext } from "@/components/StateContext";
 import { ChevronLeftIcon } from "@heroicons/react/24/outline";
-import { useContext } from "react";
 import NewMessagingChannelModal from "@/components/NewMessagingChannelModal";
 import ChatApp from "@/components/ChatApp";
 import { useRouter } from "next/navigation";
 
 export default function ChatScreen() {
   const choir = useContext(ChoirContext);
-  const choirId = choir.choirId;
+  const choirId = choir?.choirId;
   const user = useContext(UserContext);
   const state = useContext(StateContext);
 
@@ -30,71 +29,73 @@ export default function ChatScreen() {
     return () => {
       window.removeEventListener("popstate", handlePopState);
     };
-  }, []);
+  }, [router, state]);
 
-  const channels = choir.channels;
+  const channels = choir?.channels || [];
   const [newChannelModalOpen, setNewChannelModalOpen] = useState(false);
 
   const setCurrentChannel = (channel) => {
-    state.setMessagingChannel(channel);
+    if (state.messagingChannel?.channelId !== channel.channelId) {
+      state.setMessagingChannel(channel);
+    }
   };
 
-  console.log(state.messagingChannel);
+  console.log("Current Channel:", state.messagingChannel);
 
-  if (state.messagingChannel) {
-    return (
-      <div className="w-full h-full">
-        <button
-          onClick={() => state.setMessagingChannel(null)}
-          className="bg-blue-500 mb-2 flex flex-row hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
-        >
-          <ChevronLeftIcon className="h-6 w-6" />
-          {state.messagingChannel.name}
-        </button>
-        <div className="relative w-full h-full">
-          <ChatApp />
+  return (
+    <div className="flex h-full">
+      <div className="w-64 bg-gray-800 text-white p-4">
+        <div className="mb-4">
+          <button
+            onClick={() => setNewChannelModalOpen(true)}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
+          >
+            + New Channel
+          </button>
         </div>
-      </div>
-    );
-  }
-
-  console.log(state.messagingChannel);
-
-  if (!state.messagingChannel) {
-    return (
-      <div>
-        <NewMessagingChannelModal
-          open={newChannelModalOpen}
-          setOpen={setNewChannelModalOpen}
-        />
-        <div>
-          <h1>Select a Channel</h1>
-          <div className="p-2 flex flex-col">
-            <div>
-              <ul role="list" className="divide-y divide-gray-200">
-                {channels.map((item) => (
-                  <li key={item.channelId} className="py-4">
-                    <button
-                      onClick={() => setCurrentChannel(item)}
-                      className="text-left w-full font-medium text-gray-900 hover:translate-x-2 transition-all hover:cursor-pointer hover:text-blue-500"
-                    >
-                      {item.name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
+        <ul className="space-y-2">
+          {channels.map((item) => (
+            <li key={item.channelId}>
               <button
-                onClick={() => setNewChannelModalOpen(true)}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => setCurrentChannel(item)}
+                className={`block w-full text-left py-2 px-4 rounded ${
+                  state.messagingChannel?.channelId === item.channelId
+                    ? "bg-blue-500"
+                    : "hover:bg-gray-700"
+                }`}
               >
-                + New Channel
+                {item.name}
               </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="flex-1">
+        {state.messagingChannel ? (
+          <div className="w-full h-full">
+            <button
+              onClick={() => state.setMessagingChannel(null)}
+              className="bg-blue-500 mb-2 flex flex-row hover:bg-blue-700 text-white font-bold py-1 px-4 rounded"
+            >
+              <ChevronLeftIcon className="h-6 w-6" />
+              {state.messagingChannel.name}
+            </button>
+            <div className="relative w-full h-full">
+              <ChatApp key={state.messagingChannel.channelId} />
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="p-4">
+            <h1 className="text-xl font-bold">Select a Channel</h1>
+          </div>
+        )}
       </div>
-    );
-  }
+
+      <NewMessagingChannelModal
+        open={newChannelModalOpen}
+        setOpen={setNewChannelModalOpen}
+      />
+    </div>
+  );
 }
