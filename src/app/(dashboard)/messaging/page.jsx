@@ -11,10 +11,22 @@ import ChatApp from "@/components/ChatApp";
 import { useRouter } from "next/navigation";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+// import { getFirestore, collection, getDocs, query, addDoc } from "firebase/firestore";
+// import { app } from '../../../lib/firestoreAdapter'
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
+
+// new code
+const PERMANENT_CHANNELS = [
+  { name: "Main", id: "main" },
+  { name: "Sopranos", id: "sopranos" },
+  { name: "Altos", id: "altos" },
+  { name: "Tenors", id: "tenors" },
+  { name: "Basses", id: "basses" },
+];
+
 
 export default function ChatScreen() {
   const choir = useContext(ChoirContext);
@@ -37,15 +49,43 @@ export default function ChatScreen() {
     };
   }, [router, state]);
 
+  // new code
+  useEffect(() => {
+    const ensureChannelsExist = async () => {
+      if (!choirId) return;
+      
+      const channelsRef = collection(firestore, "choirs", choirId, "channels");
+      const q = query(channelsRef);
+      const existingChannelsSnapshot = await getDocs(q);
+      const existingChannels = existingChannelsSnapshot.docs.map(doc => doc.data());
+  
+      for (const channel of PERMANENT_CHANNELS) {
+        if (!existingChannels.find(existingChannel => existingChannel.id === channel.id)) {
+          await addDoc(channelsRef, { name: channel.name, id: channel.id });
+        }
+      }
+    };
+  
+    ensureChannelsExist();
+  }, [choirId]);
+  
+
   const channels = choir?.channels || [];
   const [newChannelModalOpen, setNewChannelModalOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  // const setCurrentChannel = (channel) => {
+  //   if (state.messagingChannel?.channelId !== channel.channelId) {
+  //     state.setMessagingChannel(channel);
+  //   }
+  // };
+
   const setCurrentChannel = (channel) => {
-    if (state.messagingChannel?.channelId !== channel.channelId) {
+    if (state.messagingChannel?.id !== channel.id) {
       state.setMessagingChannel(channel);
     }
   };
+  
 
   return (
     <>
@@ -97,7 +137,7 @@ export default function ChatScreen() {
                     </button>
                   </div>
                 </Transition.Child>
-                <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
+                <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-black px-6 pb-4">
                   <div className="flex h-16 shrink-0 items-center">
                     <img
                       className="h-8 w-auto"
@@ -105,14 +145,7 @@ export default function ChatScreen() {
                       alt="Your Company"
                     />
                   </div>
-                  <div className="mb-4">
-                    <button
-                      onClick={() => setNewChannelModalOpen(true)}
-                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
-                    >
-                      + New Channel
-                    </button>
-                  </div>
+                 
                   <nav className="flex flex-1 flex-col">
                     <ul role="list" className="flex flex-1 flex-col gap-y-7">
                       <li>
@@ -169,14 +202,7 @@ export default function ChatScreen() {
               alt="Your Company"
             />
           </div>
-          <div className="mb-4">
-            <button
-              onClick={() => setNewChannelModalOpen(true)}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full"
-            >
-              + New Channel
-            </button>
-          </div>
+         
           <nav className="flex flex-1 flex-col">
             <ul role="list" className="flex flex-1 flex-col gap-y-7">
               <li>
@@ -184,39 +210,36 @@ export default function ChatScreen() {
                   Channels
                 </div>
                 <ul role="list" className="-mx-2 mt-2 space-y-1">
-                  {channels.length === 0 ? (
-                    <Skeleton width={250} height={20} />
-                  ) : (
-                    channels.map((item) => (
-                      <li key={item.channelId}>
-                        <button
-                          onClick={() => setCurrentChannel(item)}
+                  {PERMANENT_CHANNELS.map((item) => (
+                    <li key={item.id}>
+                      <button
+                        onClick={() => setCurrentChannel(item)}
+                        className={classNames(
+                          state.messagingChannel?.id === item.id
+                            ? "bg-blue-500 text-white"
+                            : "text-gray-700 hover:text-white hover:bg-gray-700",
+                          "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full"
+                        )}
+                      >
+                        <span
                           className={classNames(
-                            state.messagingChannel?.channelId === item.channelId
-                              ? "bg-blue-500 text-white"
-                              : "text-gray-700 hover:text-white hover:bg-gray-700",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full"
+                            state.messagingChannel?.id === item.id
+                              ? 'text-white border-white'
+                              : 'text-gray-400 border-gray-200 group-hover:border-white group-hover:text-white',
+                            'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'
                           )}
                         >
-                          <span
-                            className={classNames(
-                              state.messagingChannel?.channelId === item.channelId
-                                ? 'text-white border-white'
-                                : 'text-gray-400 border-gray-200 group-hover:border-white group-hover:text-white',
-                              'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'
-                            )}
-                          >
-                            {item.name.charAt(0)} {/* Assuming initial is the first character of the name */}
-                          </span>
-                          <span className="truncate">{item.name}</span>
-                        </button>
-                      </li>
-                    ))
-                  )}
+                          {item.name.charAt(0)}
+                        </span>
+                        <span className="truncate">{item.name}</span>
+                      </button>
+                    </li>
+                  ))}
                 </ul>
               </li>
             </ul>
           </nav>
+
         </div>
       </div>
 
