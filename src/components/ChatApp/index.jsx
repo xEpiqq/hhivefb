@@ -32,6 +32,8 @@ export default function ChatApp() {
   const user = useContext(UserContext);
   const state = useContext(StateContext);
 
+  console.log("state", state);
+
   const [messages, setMessages] = useState([]);
   const [messageLimit, setMessageLimit] = useState(40);
   const [messageGroups, setMessageGroups] = useState([]);
@@ -112,6 +114,7 @@ export default function ChatApp() {
 
   const handleSendMessage = async () => {
     if (inputText.trim() !== "") {
+      console.log("messagingChannel", state.messagingChannel.channelId);
       await addDoc(collection(firestore, "choirs", choirId, "channels", state.messagingChannel.channelId, "messages"), {
         message: inputText.trim(),
         createdAt: serverTimestamp(),

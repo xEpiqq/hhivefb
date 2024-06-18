@@ -109,7 +109,7 @@ export default function ProfileSettings() {
               </div>
             </div>
 
-            <div className="col-span-full">
+            {/* <div className="col-span-full">
               <label
                 htmlFor="username"
                 className="block text-sm font-medium leading-6 text-gray-900"
@@ -132,7 +132,7 @@ export default function ProfileSettings() {
                   />
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
 
           <div className="mt-8 flex">
