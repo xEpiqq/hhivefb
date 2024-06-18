@@ -181,11 +181,6 @@ export default function useChoir(choirId) {
     };
     await updateDoc(songRef, updateData);
   };
-  
-  
-  
-  
-  
 
   const renameSong = async (songId, newName) => {
     const songRef = doc(firestore, "choirs", choirId, "songs", songId);
