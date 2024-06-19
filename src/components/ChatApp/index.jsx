@@ -51,8 +51,15 @@ export default function ChatApp() {
     if (!choir?.choirId) return;
     if (!firestore) return;
 
-    console.log( !state.messagingChannel);
-    const messagesRef = collection(firestore, "choirs", choirId, "channels", state.messagingChannel.channelId, "messages");
+    console.log(!state.messagingChannel);
+    const messagesRef = collection(
+      firestore,
+      "choirs",
+      choirId,
+      "channels",
+      state.messagingChannel.channelId,
+      "messages"
+    );
     const q = query(
       messagesRef,
       orderBy("createdAt", "desc"),
@@ -115,15 +122,25 @@ export default function ChatApp() {
   const handleSendMessage = async () => {
     if (inputText.trim() !== "") {
       console.log("messagingChannel", state.messagingChannel.channelId);
-      await addDoc(collection(firestore, "choirs", choirId, "channels", state.messagingChannel.channelId, "messages"), {
-        message: inputText.trim(),
-        createdAt: serverTimestamp(),
-        user: {
-          id: user.id,
-          name: user.name || user.email,
-          avatar: user.image || "https://via.placeholder.com/150",
-        },
-      });
+      await addDoc(
+        collection(
+          firestore,
+          "choirs",
+          choirId,
+          "channels",
+          state.messagingChannel.channelId,
+          "messages"
+        ),
+        {
+          message: inputText.trim(),
+          createdAt: serverTimestamp(),
+          user: {
+            id: user.id,
+            name: user.name || user.email,
+            avatar: user.image || "https://via.placeholder.com/150",
+          },
+        }
+      );
       setInputText("");
     }
   };
@@ -286,14 +303,6 @@ export default function ChatApp() {
     const previousItem =
       index < messages.length - 1 ? messages[index + 1] : null;
     const isSameUser = previousItem && item.user.id === previousItem.user.id;
-    const showProfilePicture =
-      !isSameUser ||
-      (previousItem &&
-        item.createdAt &&
-        previousItem.createdAt &&
-        item.createdAt.toDate().getTime() -
-          previousItem.createdAt.toDate().getTime() >
-          10 * 60 * 1000);
 
     const handleReactionPress = (emoji, messageId) => {
       const userReactions = item.reactions
@@ -313,19 +322,16 @@ export default function ChatApp() {
       <div className="flex flex-col items-start ">
         <hr className="bg-gray-200 mr-2 mb-3" />{" "}
         <div className="flex flex-row items-start w-full">
-          {showProfilePicture && (
-            <div className="relative">
-              <img
-                src={item.user.avatar}
-                alt="User Avatar"
-                className="w-9 h-9 rounded-xl shadow-lg"
-              />
-            </div>
-          )}
+          <div className="relative">
+            <img
+              src={item.user.avatar}
+              alt="User Avatar"
+              className="w-9 h-9 rounded-xl shadow-lg"
+            />
+          </div>
           <div
-            className={`rounded-xl w-full ${showProfilePicture ? "" : "ml-9"}`}
+            className={`rounded-xl w-full ml-9"}`}
           >
-            {showProfilePicture && (
               <div className="flex flex-row items-center gap-2 pl-4">
                 <span className="text-sm font-semibold">{item.user.name}</span>
                 <span className="text-xs text-gray-400">
@@ -339,7 +345,6 @@ export default function ChatApp() {
                     : ""}
                 </span>
               </div>
-            )}
             <button
               onMouseDown={() => handleNewReaction(item.id)}
               className="text-start w-full"
