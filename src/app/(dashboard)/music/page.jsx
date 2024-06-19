@@ -318,10 +318,10 @@ export default function MusicPage() {
 
   return (
     <>
-      <div className="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
         <div>
           {newSongModal && <AddSongPage newSongModal={newSongModal} setNewSongModal={setNewSongModal} onClose={() => setNewSongModal(false)} />}
         </div>
+      <div className="border-b border-gray-200 pb-5 sm:flex sm:items-center sm:justify-between">
         <h3 className="text-base font-semibold leading-6 text-gray-900">
           Music
         </h3>
