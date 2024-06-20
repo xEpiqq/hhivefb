@@ -13,10 +13,7 @@ import DeleteAccount from "./DeleteAccount";
 
 const secondaryNavigation = [
   { name: "Account", href: "#", current: true },
-  { name: "Notifications", href: "#", current: false },
   { name: "Billing", href: "#", current: false },
-  { name: "Teams", href: "#", current: false },
-  { name: "Integrations", href: "#", current: false },
 ];
 
 export default function Example() {

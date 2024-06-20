@@ -344,7 +344,7 @@ export default function Layout({ children }) {
             </div>
 
             <div className="lg:pl-72 h-full w-full flex flex-col">
-            {!pathname.includes("/song") && !pathname.includes("/messaging") && (
+            {!pathname.includes("/song") && !pathname.includes("/messaging") && !pathname.includes("/settings") && (
 
               <div className="sticky top-0 z-40 w-full lg:mx-auto lg:max-w-7xl lg:px-8">
 
