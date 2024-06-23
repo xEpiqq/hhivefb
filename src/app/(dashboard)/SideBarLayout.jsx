@@ -344,7 +344,7 @@ export default function Layout({ children }) {
             </div>
 
             <div className="lg:pl-72 h-full w-full flex flex-col">
-            {!pathname.includes("/song") && !pathname.includes("/messaging") && (
+            {!pathname.includes("/song") && !pathname.includes("/messaging") && !pathname.includes("/settings") && (
 
               <div className="sticky top-0 z-40 w-full lg:mx-auto lg:max-w-7xl lg:px-8">
 
@@ -460,15 +460,15 @@ export default function Layout({ children }) {
                           <Menu.Items className="absolute right-0 z-10 mt-2.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
                             <Menu.Item>
                               {({ active }) => (
-                                <a
-                                  href="#"
+                                <Link
+                                  href="/settings"
                                   className={classNames(
                                     active ? "bg-gray-100" : "",
                                     "block px-4 py-2 text-sm text-gray-700"
                                   )}
                                 >
                                   Settings
-                                </a>
+                                </Link>
                               )}
                             </Menu.Item>
                             <Menu.Item>

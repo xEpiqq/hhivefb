@@ -11,8 +11,8 @@ import ChatApp from "@/components/ChatApp";
 import { useRouter } from "next/navigation";
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
-// import { getFirestore, collection, getDocs, query, addDoc } from "firebase/firestore";
-// import { app } from '../../../lib/firestoreAdapter'
+import { collection, getDocs, query, addDoc } from "firebase/firestore";
+const { firestore } = require('@/components/Firebase');
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
@@ -20,11 +20,11 @@ function classNames(...classes) {
 
 // new code
 const PERMANENT_CHANNELS = [
-  { name: "Main", id: "main" },
-  { name: "Sopranos", id: "sopranos" },
-  { name: "Altos", id: "altos" },
-  { name: "Tenors", id: "tenors" },
-  { name: "Basses", id: "basses" },
+  { name: "Main", channelId: "main" },
+  { name: "Sopranos", channelId: "sopranos" },
+  { name: "Altos", channelId: "altos" },
+  { name: "Tenors", channelId: "tenors" },
+  { name: "Basses", channelId: "basses" },
 ];
 
 
@@ -81,7 +81,7 @@ export default function ChatScreen() {
   // };
 
   const setCurrentChannel = (channel) => {
-    if (state.messagingChannel?.id !== channel.id) {
+    if (state.messagingChannel?.channelId !== channel.channelId) {
       state.setMessagingChannel(channel);
     }
   };
@@ -211,11 +211,11 @@ export default function ChatScreen() {
                 </div>
                 <ul role="list" className="-mx-2 mt-2 space-y-1">
                   {PERMANENT_CHANNELS.map((item) => (
-                    <li key={item.id}>
+                    <li key={item.channelId}>
                       <button
                         onClick={() => setCurrentChannel(item)}
                         className={classNames(
-                          state.messagingChannel?.id === item.id
+                          state.messagingChannel?.channelId === item.channelId
                             ? "bg-blue-500 text-white"
                             : "text-gray-700 hover:text-white hover:bg-gray-700",
                           "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold w-full"
@@ -223,7 +223,7 @@ export default function ChatScreen() {
                       >
                         <span
                           className={classNames(
-                            state.messagingChannel?.id === item.id
+                            state.messagingChannel?.channelId === item.channelId
                               ? 'text-white border-white'
                               : 'text-gray-400 border-gray-200 group-hover:border-white group-hover:text-white',
                             'flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'
