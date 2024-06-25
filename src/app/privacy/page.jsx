@@ -7,7 +7,7 @@ export default function Example() {
         
         <div className="mt-6 text-left">
           <p className="text-lg leading-8 text-gray-600">
-            <strong>Effective Date:</strong> [Insert Date]
+            <strong>Effective Date:</strong> 6/25/2024
           </p>
           
           <h3 className="mt-4 text-2xl font-semibold text-gray-900">1. Introduction</h3>
